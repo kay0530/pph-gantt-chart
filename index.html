@@ -7,7 +7,8 @@
 <title>PPH商談 ガントチャート</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Segoe UI','Meiryo',sans-serif; background:#f5f7fa; color:#333; }
+html, body { height:100%; }
+body { font-family:'Segoe UI','Meiryo',sans-serif; background:#f5f7fa; color:#333; display:flex; flex-direction:column; }
 
 /* === Loading Overlay === */
 #loading-overlay {
@@ -88,7 +89,7 @@ body { font-family:'Segoe UI','Meiryo',sans-serif; background:#f5f7fa; color:#33
 .legend-item.flt.off { opacity:0.35; }
 
 /* === Gantt Table === */
-.gantt-wrapper { overflow:auto; max-height:calc(100vh - 100px); position:relative; }
+.gantt-wrapper { overflow-x:scroll; overflow-y:auto; flex:1; position:relative; }
 table { border-collapse:separate; border-spacing:0; }
 th { background:#e8eaf6; padding:3px 2px; font-size:10px; font-weight:600; border:1px solid #c5cae9; white-space:nowrap; }
 th.mh { background:#c5cae9; font-size:11px; text-align:center; font-weight:700; }
@@ -110,22 +111,25 @@ tr:hover td.dc { box-shadow: inset 0 2px 0 #9fa8da, inset 0 -2px 0 #9fa8da; }
 .col-koji    { width:56px;  min-width:56px;  max-width:56px;  white-space:nowrap; position:sticky; left:634px;  background:#fff; z-index:5; font-size:10px; padding:2px 3px; text-align:center; }
 .col-kojick  { width:30px;  min-width:30px;  max-width:30px;  white-space:nowrap; position:sticky; left:690px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 1px; text-align:center; }
 .col-next    { width:120px; min-width:120px; max-width:120px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:sticky; left:720px;  background:#fff; z-index:5; border-right:2px solid #1a237e; font-size:10px; padding:3px 4px; }
+/* Fix: cover subpixel gaps so date content doesn't bleed through sticky columns */
+td.col-name, td.col-pref, td.col-type, td.col-tmpsvy, td.col-survey, td.col-svyck,
+td.col-const, td.col-stage, td.col-koji, td.col-kojick, td.col-next { box-shadow: -1px 0 0 0 #fff, 1px 0 0 0 #fff; }
 .ck-ok       { color:#2e7d32; font-weight:700; }
 .ck-ng       { color:#bdbdbd; }
 
 /* Header sticky cells: need higher z-index for both top+left */
 thead th.col-name, thead th.col-pref, thead th.col-type,
 thead th.col-tmpsvy, thead th.col-survey, thead th.col-svyck, thead th.col-const,
-thead th.col-stage, thead th.col-koji, thead th.col-kojick, thead th.col-next { z-index:30; background:#e8eaf6; }
+thead th.col-stage, thead th.col-koji, thead th.col-kojick, thead th.col-next { z-index:30; background:#e8eaf6; box-shadow: -1px 0 0 0 #e8eaf6, 1px 0 0 0 #e8eaf6; }
 
 /* Even row backgrounds for sticky cols */
 tr:nth-child(even) .col-name, tr:nth-child(even) .col-pref, tr:nth-child(even) .col-type,
 tr:nth-child(even) .col-tmpsvy, tr:nth-child(even) .col-survey, tr:nth-child(even) .col-svyck, tr:nth-child(even) .col-const,
-tr:nth-child(even) .col-stage, tr:nth-child(even) .col-koji, tr:nth-child(even) .col-kojick, tr:nth-child(even) .col-next { background:#fafafa; }
+tr:nth-child(even) .col-stage, tr:nth-child(even) .col-koji, tr:nth-child(even) .col-kojick, tr:nth-child(even) .col-next { background:#fafafa; box-shadow: -1px 0 0 0 #fafafa, 1px 0 0 0 #fafafa; }
 /* Hover for sticky cols */
 tr:hover .col-name, tr:hover .col-pref, tr:hover .col-type,
 tr:hover .col-tmpsvy, tr:hover .col-survey, tr:hover .col-svyck, tr:hover .col-const,
-tr:hover .col-stage, tr:hover .col-koji, tr:hover .col-kojick, tr:hover .col-next { background:#e8eaf6 !important; }
+tr:hover .col-stage, tr:hover .col-koji, tr:hover .col-kojick, tr:hover .col-next { background:#e8eaf6 !important; box-shadow: -1px 0 0 0 #e8eaf6, 1px 0 0 0 #e8eaf6; }
 
 /* Header row sticky top */
 thead tr:first-child th { position:sticky; top:0; z-index:20; }
