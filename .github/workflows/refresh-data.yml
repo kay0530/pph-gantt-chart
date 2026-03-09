@@ -2,8 +2,6 @@ name: Salesforceデータ更新
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 22 * * *'
 
 jobs:
   refresh:
@@ -16,7 +14,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install simple-salesforce firebase-admin
+        run: pip install simple-salesforce
 
       - name: Run refresh script
         env:
@@ -24,5 +22,13 @@ jobs:
           SF_PASSWORD: ${{ secrets.SF_PASSWORD }}
           SF_SECURITY_TOKEN: ${{ secrets.SF_SECURITY_TOKEN }}
           SF_DOMAIN: ${{ secrets.SF_DOMAIN }}
-          FIREBASE_SA_KEY: ${{ secrets.FIREBASE_SA_KEY }}
         run: python refresh_data.py
+
+      - name: Commit and push updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pph_data_v5.json
+          git diff --cached --quiet || git commit -m "data: Salesforceデータ更新 $(date '+%Y/%m/%d %H:%M')"
+          git push
+
