@@ -1,5 +1,5 @@
 """
-Salesforceから最新PPH商談データを取得し、Firebaseにアップロードするスクリプト。
+Salesforceから最新PPH商談データを取得し、JSONファイルに保存するスクリプト。
 GitHub Actionsまたはローカルから実行可能。
 
 必要な環境変数:
@@ -7,19 +7,16 @@ GitHub Actionsまたはローカルから実行可能。
   SF_PASSWORD       - Salesforceパスワード
   SF_SECURITY_TOKEN - Salesforceセキュリティトークン
   SF_DOMAIN         - Salesforceドメイン (login / test)
-  FIREBASE_SA_KEY   - Firebase サービスアカウントキー (JSONテキスト)
 
 ローカル実行時:
-  - serviceAccountKey.json がカレントディレクトリにあれば FIREBASE_SA_KEY は不要
   - .env ファイルから環境変数を読み込み可能
 """
-import json, os, sys, tempfile
+import json, os, sys
 from datetime import datetime
 
 sys.stdout.reconfigure(encoding='utf-8')
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-DATABASE_URL = 'https://pph-gantt-chart-default-rtdb.asia-southeast1.firebasedatabase.app'
 
 FIELDS = [
     'Id', 'Name', 'StageName', 'ConstractType__c',
@@ -96,55 +93,10 @@ def main():
     records = [flatten_record(r) for r in result['records']]
     print(f'取得件数: {len(records)}')
 
-    # JSONファイル保存
     out_path = os.path.join(SCRIPT_DIR, 'pph_data_v5.json')
     with open(out_path, 'w', encoding='utf-8') as f:
         json.dump(records, f, ensure_ascii=False, indent=2)
-    print(f'JSON保存: {out_path}')
-
-    # --- Firebase接続 ---
-    try:
-        import firebase_admin
-        from firebase_admin import credentials, db
-    except ImportError:
-        print('エラー: firebase_admin がインストールされていません')
-        print('  pip install firebase-admin')
-        sys.exit(1)
-
-    # サービスアカウントキーの取得
-    sa_key_path = os.path.join(SCRIPT_DIR, 'serviceAccountKey.json')
-    sa_key_env = os.environ.get('FIREBASE_SA_KEY', '')
-
-    if sa_key_env:
-        # 環境変数からサービスアカウントキー (GitHub Actions用)
-        tmp = tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False)
-        tmp.write(sa_key_env)
-        tmp.close()
-        sa_key_path = tmp.name
-
-    if not os.path.exists(sa_key_path):
-        print(f'エラー: Firebase サービスアカウントキーが見つかりません')
-        sys.exit(1)
-
-    cred = credentials.Certificate(sa_key_path)
-    firebase_admin.initialize_app(cred, {'databaseURL': DATABASE_URL})
-
-    print('Firebaseにアップロード中...')
-    ref = db.reference('/')
-    ref.set({
-        'pph_data': records,
-        'metadata': {
-            'lastUpdated': datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
-            'recordCount': len(records)
-        }
-    })
-
-    # 一時ファイル削除
-    if sa_key_env and os.path.exists(tmp.name):
-        os.unlink(tmp.name)
-
-    print(f'アップロード完了! ({len(records)}件)')
-    print(f'更新日時: {datetime.now().strftime("%Y/%m/%d %H:%M:%S")}')
+    print(f'JSON保存: {out_path} ({len(records)}件)')
 
 if __name__ == '__main__':
     main()
