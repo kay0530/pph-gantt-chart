@@ -74,9 +74,9 @@ body { font-family:'Segoe UI','Meiryo',sans-serif; background:#f5f7fa; color:#33
 
 /* Multi-select dropdown */
 .ms-wrap { position:relative; display:inline-block; }
-.ms-btn { padding:4px 8px; border:1px solid #ccc; border-radius:4px; font-size:12px; background:#fff; cursor:pointer; min-width:160px; text-align:left; white-space:nowrap; }
+.ms-btn { padding:4px 8px; border:1px solid #ccc; border-radius:4px; font-size:12px; background:#fff; cursor:pointer; min-width:120px; text-align:left; white-space:nowrap; }
 .ms-btn::after { content:'\25BC'; float:right; font-size:9px; margin-left:8px; color:#888; }
-.ms-panel { position:absolute; top:100%; left:0; background:#fff; border:1px solid #ccc; border-radius:4px; box-shadow:0 2px 8px rgba(0,0,0,0.15); z-index:300; min-width:220px; max-height:300px; overflow-y:auto; display:none; }
+.ms-panel { position:absolute; top:100%; left:0; background:#fff; border:1px solid #ccc; border-radius:4px; box-shadow:0 2px 8px rgba(0,0,0,0.15); z-index:300; min-width:180px; max-height:300px; overflow-y:auto; display:none; }
 .ms-panel.open { display:block; }
 .ms-panel label { display:flex; align-items:center; gap:6px; padding:5px 10px; font-size:12px; cursor:pointer; white-space:nowrap; }
 .ms-panel label:hover { background:#e8eaf6; }
@@ -95,11 +95,10 @@ th { background:#e8eaf6; padding:3px 2px; font-size:10px; font-weight:600; borde
 th.mh { background:#c5cae9; font-size:11px; text-align:center; font-weight:700; }
 td { padding:2px 4px; border:1px solid #e0e0e0; font-size:11px; vertical-align:middle; }
 tr:nth-child(even) td { background:#fafafa; }
-/* Hover: only sticky columns get background; date cells get top/bottom border highlight */
 tr:hover td:not(.dc) { background:#e8eaf6 !important; }
 tr:hover td.dc { box-shadow: inset 0 2px 0 #9fa8da, inset 0 -2px 0 #9fa8da; }
 
-/* ---- Sticky columns (12 cols: name, pref, area, type, tmpsvy, survey, svyck, const, stage, koji, kojick, next) ---- */
+/* ---- Sticky columns ---- */
 .col-name    { width:200px; min-width:60px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:sticky; left:0;     background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:11px; padding:3px 6px; }
 .col-pref    { width:56px;  min-width:30px; white-space:nowrap; position:sticky; left:200px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 3px; text-align:center; }
 .col-area    { width:48px;  min-width:30px; white-space:nowrap; position:sticky; left:256px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 3px; text-align:center; }
@@ -112,7 +111,6 @@ tr:hover td.dc { box-shadow: inset 0 2px 0 #9fa8da, inset 0 -2px 0 #9fa8da; }
 .col-koji    { width:56px;  min-width:40px; white-space:nowrap; position:sticky; left:682px;  background:#fff; z-index:5; font-size:10px; padding:2px 3px; text-align:center; }
 .col-kojick  { width:30px;  min-width:20px; white-space:nowrap; position:sticky; left:738px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 1px; text-align:center; }
 .col-next    { width:120px; min-width:50px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:sticky; left:768px;  background:#fff; z-index:5; border-right:2px solid #1a237e; font-size:10px; padding:3px 4px; }
-/* Fix: cover subpixel gaps so date content doesn't bleed through sticky columns */
 td.col-pref, td.col-area, td.col-type, td.col-tmpsvy, td.col-survey, td.col-svyck,
 td.col-const, td.col-stage, td.col-koji, td.col-kojick, td.col-next { border-left-color:#fff; }
 td.col-name, td.col-pref, td.col-area, td.col-type, td.col-tmpsvy, td.col-survey, td.col-svyck,
@@ -120,24 +118,19 @@ td.col-const, td.col-stage, td.col-koji, td.col-kojick, td.col-next { box-shadow
 .ck-ok       { color:#2e7d32; font-weight:700; }
 .ck-ng       { color:#bdbdbd; }
 
-/* Header sticky cells: need higher z-index for both top+left */
 thead th.col-name, thead th.col-pref, thead th.col-area, thead th.col-type,
 thead th.col-tmpsvy, thead th.col-survey, thead th.col-svyck, thead th.col-const,
 thead th.col-stage, thead th.col-koji, thead th.col-kojick, thead th.col-next { z-index:30; background:#e8eaf6; border-left-color:#e8eaf6; box-shadow: 0 0 0 3px #e8eaf6; }
 
-/* Even row backgrounds for sticky cols */
 tr:nth-child(even) .col-name, tr:nth-child(even) .col-pref, tr:nth-child(even) .col-area, tr:nth-child(even) .col-type,
 tr:nth-child(even) .col-tmpsvy, tr:nth-child(even) .col-survey, tr:nth-child(even) .col-svyck, tr:nth-child(even) .col-const,
 tr:nth-child(even) .col-stage, tr:nth-child(even) .col-koji, tr:nth-child(even) .col-kojick, tr:nth-child(even) .col-next { background:#fafafa; border-left-color:#fafafa; box-shadow: 0 0 0 3px #fafafa; }
-/* Hover for sticky cols */
 tr:hover .col-name, tr:hover .col-pref, tr:hover .col-area, tr:hover .col-type,
 tr:hover .col-tmpsvy, tr:hover .col-survey, tr:hover .col-svyck, tr:hover .col-const,
 tr:hover .col-stage, tr:hover .col-koji, tr:hover .col-kojick, tr:hover .col-next { background:#e8eaf6 !important; border-left-color:#e8eaf6; box-shadow: 0 0 0 3px #e8eaf6; }
 
-/* Header row sticky top */
 thead tr:first-child th { position:sticky; top:0; z-index:20; }
 thead tr:nth-child(2) th { position:sticky; top:26px; z-index:20; }
-/* Header sticky cols override: top + left = highest z */
 thead tr:first-child th.col-name, thead tr:first-child th.col-pref, thead tr:first-child th.col-area, thead tr:first-child th.col-type,
 thead tr:first-child th.col-tmpsvy, thead tr:first-child th.col-survey, thead tr:first-child th.col-svyck, thead tr:first-child th.col-const,
 thead tr:first-child th.col-stage, thead tr:first-child th.col-koji, thead tr:first-child th.col-kojick, thead tr:first-child th.col-next { z-index:40; box-shadow: 0 0 0 3px #e8eaf6; }
@@ -145,7 +138,6 @@ thead tr:first-child th.col-stage, thead tr:first-child th.col-koji, thead tr:fi
 .nx-wait { color:#1565c0; font-weight:600; }
 .nx-alert { background:#ffebee !important; color:#c62828; font-weight:700; }
 
-/* Date cells */
 .dc { width:24px; min-width:24px; max-width:24px; height:26px; padding:0; text-align:center; font-size:9px; }
 .tl { background:rgba(255,0,0,0.15) !important; border-left:2px solid #f44336 !important; border-right:2px solid #f44336 !important; }
 .dc.sat { background:#e3f2fd; }
@@ -159,7 +151,6 @@ thead tr:first-child th.col-stage, thead tr:first-child th.col-koji, thead tr:fi
 
 .s00{color:#9e9e9e}.s01{color:#2196f3}.s04{color:#ff9800}.s06{color:#4caf50}.s08{color:#e65100}.s09{color:#7b1fa2}.s10{color:#1b5e20}.sl{color:#c62828}.sp{color:#795548}
 
-/* Sort header */
 th.sortable { cursor:pointer; user-select:none; }
 th.sortable:hover { background:#d1d5db !important; }
 th.sort-asc::after { content:' \u25b2'; font-size:8px; }
@@ -170,7 +161,6 @@ th.sort-desc::after { content:' \u25bc'; font-size:8px; }
 .date-val { color:#333; font-weight:500; }
 .date-empty { color:#ccc; }
 
-/* Column resize handle */
 th.sortable { position:relative; }
 th .col-resize {
   position:absolute; right:-3px; top:0; width:6px; height:100%;
@@ -179,11 +169,20 @@ th .col-resize {
 th .col-resize:hover { background:rgba(26,35,126,0.3); }
 body.col-resizing { cursor:col-resize !important; user-select:none !important; }
 body.col-resizing * { cursor:col-resize !important; }
+
+/* === Filter presets === */
+.filter-presets { display:flex; gap:6px; align-items:center; margin-left:auto; }
+.preset-btn { padding:3px 10px; border:1px solid #c5cae9; border-radius:4px; font-size:11px; background:#fff; cursor:pointer; white-space:nowrap; transition:all 0.15s; }
+.preset-btn:hover { background:#e8eaf6; }
+.preset-btn.active { background:#1a237e; color:#fff; border-color:#1a237e; }
+.preset-btn.save { background:#e8f5e9; color:#2e7d32; border-color:#a5d6a7; }
+.preset-btn.save:hover { background:#c8e6c9; }
+.preset-btn.del { background:#ffebee; color:#c62828; border-color:#ef9a9a; font-size:9px; padding:3px 5px; }
+.preset-btn.del:hover { background:#ffcdd2; }
 </style>
 </head>
 <body>
 
-<!-- Loading overlay -->
 <div id="loading-overlay">
   <div class="spinner"></div>
   <p>データを読み込み中...</p>
@@ -224,22 +223,25 @@ body.col-resizing * { cursor:col-resize !important; }
     </div>
   </div>
   <label>エリア:</label>
-  <select id="aff" onchange="render()"><option value="all" selected>全て</option></select>
+  <div class="ms-wrap" id="afWrap">
+    <div class="ms-btn" id="afBtn" onclick="document.getElementById('afPanel').classList.toggle('open')">全て</div>
+    <div class="ms-panel" id="afPanel"></div>
+  </div>
   <label>都道府県:</label>
-  <select id="pff" onchange="render()"><option value="all" selected>全て</option></select>
+  <select id="pff" onchange="applyFilters()"><option value="all" selected>全て</option></select>
   <label>事業区分:</label>
   <div class="ms-wrap" id="ctWrap">
     <div class="ms-btn" id="ctBtn" onclick="document.getElementById('ctPanel').classList.toggle('open')">全て</div>
     <div class="ms-panel" id="ctPanel"></div>
   </div>
   <label>施工担当:</label>
-  <select id="cuf" onchange="render()">
+  <select id="cuf" onchange="applyFilters()">
     <option value="all" selected>全て</option><option value="none">未設定</option>
   </select>
   <label>検索:</label>
-  <input type="text" id="si" placeholder="商談名..." style="width:140px;" oninput="render()">
+  <input type="text" id="si" placeholder="商談名..." style="width:140px;" oninput="applyFilters()">
   <label>期間:</label>
-  <select id="pf" onchange="render()">
+  <select id="pf" onchange="applyFilters()">
     <option value="3">3ヶ月</option><option value="6" selected>6ヶ月</option>
     <option value="12">12ヶ月</option><option value="all">全期間</option>
   </select>
@@ -261,6 +263,10 @@ body.col-resizing * { cursor:col-resize !important; }
   <div class="legend-item" style="border-left:1px solid #ccc;padding-left:10px;margin-left:6px;">
     <div class="legend-color" style="background:#bbdefb;border:1px solid #90caf9"></div><span style="color:#1565c0;font-weight:600;">土</span>
     <div class="legend-color" style="background:#ffcdd2;border:1px solid #ef9a9a;margin-left:6px;"></div><span style="color:#c62828;font-weight:600;">日祝</span>
+  </div>
+  <div class="filter-presets" id="filterPresets">
+    <span style="font-size:10px;color:#888;border-left:1px solid #ccc;padding-left:10px;">条件:</span>
+    <button class="preset-btn save" onclick="savePreset()">&#x1F4BE; 保存</button>
   </div>
 </div>
 <div class="gantt-wrapper" id="gw">
@@ -335,12 +341,30 @@ function getNextEvent(r){
   return n;
 }
 
-// ===== Today Dashboard =====
+// ===== Shared filter logic =====
+function getFilteredData(){
+  const si=document.getElementById('si').value.toLowerCase();
+  const pfv=document.getElementById('pff').value;
+  const cuv=document.getElementById('cuf').value;
+  return D.filter(r=>{
+    if(si&&!r.Name.toLowerCase().includes(si))return false;
+    const s=r.StageName||'';
+    if(selStages.size>0){let match=false;for(const st of selStages){if(s.startsWith(st)){match=true;break;}}if(!match)return false;}
+    if(selAreas.size>0&&!selAreas.has(getArea(r.Prefecture||'')))return false;
+    if(pfv!=='all'&&(r.Prefecture||'')!==pfv)return false;
+    if(selCTypes.size>0&&!selCTypes.has(r.ConstractType__c||''))return false;
+    if(cuv==='none'&&r.ConstUserName)return false;
+    if(cuv!=='all'&&cuv!=='none'&&(r.ConstUserName||'')!==cuv)return false;
+    if(activeEvs.size>0&&!hasActiveEvent(r))return false;
+    return true;
+  });
+}
+
+// ===== Today Dashboard (uses filtered data) =====
 function buildTodayDash(){
   const todayStr = NOW.getFullYear()+'-'+String(NOW.getMonth()+1).padStart(2,'0')+'-'+String(NOW.getDate()).padStart(2,'0');
   const TMR = new Date(NOW); TMR.setDate(TMR.getDate()+1);
   const tmrStr = TMR.getFullYear()+'-'+String(TMR.getMonth()+1).padStart(2,'0')+'-'+String(TMR.getDate()).padStart(2,'0');
-  // 30 days from now for unconfirmed items
   const FUTURE30 = new Date(NOW); FUTURE30.setDate(FUTURE30.getDate()+30);
   const future30Str = FUTURE30.getFullYear()+'-'+String(FUTURE30.getMonth()+1).padStart(2,'0')+'-'+String(FUTURE30.getDate()).padStart(2,'0');
 
@@ -373,8 +397,11 @@ function buildTodayDash(){
     return n>='07' && n<='10';
   }
 
+  // Use filtered data for dashboard
+  const filtered = getFilteredData();
+
   let totalCount = 0;
-  D.forEach(r => {
+  filtered.forEach(r => {
     const stg = r.StageName || '';
     if(!isStage07plus(stg)) return;
     events.forEach(e => {
@@ -404,20 +431,17 @@ function buildTodayDash(){
         totalCount++;
       }
     }
-    // Unconfirmed survey dates (upcoming within 30 days)
     const svyDate = r.SurveyDate__c || '';
     const svyKk = r.SurveyKakutei__c === true || r.SurveyKakutei__c === 'true';
     if(svyDate && !svyKk && svyDate >= todayStr && svyDate <= future30Str){
       todayItems['本現調日（未確定）'].push(r);
       totalCount++;
     }
-    // Unconfirmed construction start dates (upcoming within 30 days)
     const kojiKk = r.KojiSekouKakuteibi__c === true || r.KojiSekouKakuteibi__c === 'true';
     if(kojiStr && !kojiKk && kojiStr >= todayStr && kojiStr <= future30Str){
       todayItems['着工日（未確定）'].push(r);
       totalCount++;
     }
-    // Check all date fields for today's date
     const todayLabels = [];
     allDateFields.forEach(df => {
       const v = r[df.f];
@@ -512,11 +536,11 @@ function populateFilters(){
     if(r.ConstractType__c)ctSet.add(r.ConstractType__c);
     if(r.ConstUserName)cuSet.add(r.ConstUserName);
   });
-  // Area filter
-  const afSel=document.getElementById('aff');
+  // Area multi-select
+  const afPanel=document.getElementById('afPanel');
   const areaOrder=['北海道','東北','関東','北陸','中部','関西','中国','四国','九州'];
-  areaOrder.forEach(a=>{if(areaSet.has(a)){const o=document.createElement('option');o.value=a;o.textContent=a;afSel.appendChild(o);}});
-  // Prefecture filter
+  areaOrder.forEach(a=>{if(areaSet.has(a)){const lbl=document.createElement('label');lbl.innerHTML='<input type="checkbox" value="'+a+'" onchange="onAreaChk()">'+a;afPanel.appendChild(lbl);}});
+  // Prefecture
   const pfSel=document.getElementById('pff');
   [...prefSet].sort().forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;pfSel.appendChild(o);});
   const ctPanel=document.getElementById('ctPanel');
@@ -542,8 +566,22 @@ function onStageChk(){
   if(selStages.size===0) btn.textContent='全て';
   else if(selStages.size<=3) btn.textContent=[...selStages].map(v=>v+'_').join(', ').replace(/_,/g,', ').replace(/_$/,'');
   else btn.textContent=selStages.size+'件選択中';
-  render();
+  applyFilters();
 }
+
+// === Multi-select area filter ===
+let selAreas=new Set();
+function onAreaChk(){
+  const cbs=document.querySelectorAll('#afPanel input[type=checkbox]');
+  selAreas.clear();
+  cbs.forEach(cb=>{if(cb.checked)selAreas.add(cb.value);});
+  const btn=document.getElementById('afBtn');
+  if(selAreas.size===0) btn.textContent='全て';
+  else if(selAreas.size<=3) btn.textContent=[...selAreas].join(', ');
+  else btn.textContent=selAreas.size+'件選択中';
+  applyFilters();
+}
+
 // === Multi-select business type filter ===
 let selCTypes=new Set();
 function onCTypeChk(){
@@ -554,14 +592,15 @@ function onCTypeChk(){
   if(selCTypes.size===0) btn.textContent='全て';
   else if(selCTypes.size<=2) btn.textContent=[...selCTypes].join(', ');
   else btn.textContent=selCTypes.size+'件選択中';
-  render();
+  applyFilters();
 }
+
 // Close dropdowns on outside click
 document.addEventListener('click',e=>{
-  const w=document.getElementById('sfWrap');
-  if(w&&!w.contains(e.target))document.getElementById('sfPanel').classList.remove('open');
-  const w2=document.getElementById('ctWrap');
-  if(w2&&!w2.contains(e.target))document.getElementById('ctPanel').classList.remove('open');
+  ['sfWrap','afWrap','ctWrap'].forEach(id=>{
+    const w=document.getElementById(id);
+    if(w&&!w.contains(e.target)){const p=w.querySelector('.ms-panel');if(p)p.classList.remove('open');}
+  });
 });
 
 // === Event type legend filter ===
@@ -578,7 +617,7 @@ function toggleEv(el){
   const allFlt=document.querySelectorAll('.legend-item.flt');
   if(activeEvs.size===0) allFlt.forEach(f=>{f.classList.remove('on','off');});
   else allFlt.forEach(f=>{if(!activeEvs.has(f.dataset.ev))f.classList.add('off');else f.classList.remove('off');});
-  render();
+  applyFilters();
 }
 function hasActiveEvent(r){
   for(const ev of activeEvs){
@@ -590,6 +629,134 @@ function hasActiveEvent(r){
     }
   }
   return false;
+}
+
+// ===== applyFilters: rebuild dashboard + gantt =====
+function applyFilters(){
+  buildTodayDash();
+  render();
+}
+
+// ===== Filter Preset Save/Load (localStorage) =====
+const PRESET_KEY = 'pph_gantt_presets';
+function getPresets(){ try{ return JSON.parse(localStorage.getItem(PRESET_KEY)) || []; }catch(e){return [];} }
+function savePresets(arr){ localStorage.setItem(PRESET_KEY, JSON.stringify(arr)); }
+
+function getCurrentFilterState(){
+  return {
+    stages: [...selStages],
+    areas: [...selAreas],
+    pref: document.getElementById('pff').value,
+    ctype: [...selCTypes],
+    constUser: document.getElementById('cuf').value,
+    search: document.getElementById('si').value,
+    period: document.getElementById('pf').value,
+    events: [...activeEvs]
+  };
+}
+
+function applyPreset(state){
+  // Stages
+  selStages.clear();
+  (state.stages||[]).forEach(v=>selStages.add(v));
+  document.querySelectorAll('#sfPanel input[type=checkbox]').forEach(cb=>{cb.checked=selStages.has(cb.value);});
+  const sfBtn=document.getElementById('sfBtn');
+  if(selStages.size===0) sfBtn.textContent='全て';
+  else if(selStages.size<=3) sfBtn.textContent=[...selStages].map(v=>v+'_').join(', ').replace(/_,/g,', ').replace(/_$/,'');
+  else sfBtn.textContent=selStages.size+'件選択中';
+
+  // Areas
+  selAreas.clear();
+  (state.areas||[]).forEach(v=>selAreas.add(v));
+  document.querySelectorAll('#afPanel input[type=checkbox]').forEach(cb=>{cb.checked=selAreas.has(cb.value);});
+  const afBtn=document.getElementById('afBtn');
+  if(selAreas.size===0) afBtn.textContent='全て';
+  else if(selAreas.size<=3) afBtn.textContent=[...selAreas].join(', ');
+  else afBtn.textContent=selAreas.size+'件選択中';
+
+  // Pref
+  document.getElementById('pff').value=state.pref||'all';
+  // CType
+  selCTypes.clear();
+  (state.ctype||[]).forEach(v=>selCTypes.add(v));
+  document.querySelectorAll('#ctPanel input[type=checkbox]').forEach(cb=>{cb.checked=selCTypes.has(cb.value);});
+  const ctBtn=document.getElementById('ctBtn');
+  if(selCTypes.size===0) ctBtn.textContent='全て';
+  else if(selCTypes.size<=2) ctBtn.textContent=[...selCTypes].join(', ');
+  else ctBtn.textContent=selCTypes.size+'件選択中';
+
+  // ConstUser
+  document.getElementById('cuf').value=state.constUser||'all';
+  // Search
+  document.getElementById('si').value=state.search||'';
+  // Period
+  document.getElementById('pf').value=state.period||'6';
+  // Events
+  activeEvs.clear();
+  (state.events||[]).forEach(v=>activeEvs.add(v));
+  const allFlt=document.querySelectorAll('.legend-item.flt');
+  if(activeEvs.size===0) allFlt.forEach(f=>{f.classList.remove('on','off');});
+  else allFlt.forEach(f=>{if(activeEvs.has(f.dataset.ev)){f.classList.add('on');f.classList.remove('off');}else{f.classList.add('off');f.classList.remove('on');}});
+
+  applyFilters();
+}
+
+function savePreset(){
+  const name = prompt('条件名を入力してください:');
+  if(!name) return;
+  const presets = getPresets();
+  const existing = presets.findIndex(p=>p.name===name);
+  const entry = { name, state: getCurrentFilterState() };
+  if(existing>=0) presets[existing]=entry; else presets.push(entry);
+  savePresets(presets);
+  renderPresetButtons();
+}
+
+function loadPreset(name){
+  const presets = getPresets();
+  const p = presets.find(x=>x.name===name);
+  if(p) applyPreset(p.state);
+  renderPresetButtons(name);
+}
+
+function deletePreset(name, ev){
+  ev.stopPropagation();
+  if(!confirm('「'+name+'」を削除しますか？')) return;
+  const presets = getPresets().filter(p=>p.name!==name);
+  savePresets(presets);
+  renderPresetButtons();
+}
+
+function renderPresetButtons(activeName){
+  const container = document.getElementById('filterPresets');
+  // Keep only the save button (last child)
+  const saveBtn = container.querySelector('.save');
+  container.innerHTML = '<span style="font-size:10px;color:#888;border-left:1px solid #ccc;padding-left:10px;">条件:</span>';
+  const presets = getPresets();
+  presets.forEach(p=>{
+    const btn = document.createElement('button');
+    btn.className = 'preset-btn' + (activeName===p.name?' active':'');
+    btn.textContent = p.name;
+    btn.onclick = ()=>loadPreset(p.name);
+    const del = document.createElement('button');
+    del.className = 'preset-btn del';
+    del.textContent = '✕';
+    del.title = '削除';
+    del.onclick = (e)=>deletePreset(p.name, e);
+    const wrap = document.createElement('span');
+    wrap.style.cssText='display:inline-flex;gap:2px;align-items:center;';
+    wrap.appendChild(btn);
+    wrap.appendChild(del);
+    container.appendChild(wrap);
+  });
+  container.appendChild(saveBtn || createSaveBtn());
+}
+function createSaveBtn(){
+  const btn = document.createElement('button');
+  btn.className='preset-btn save';
+  btn.innerHTML='&#x1F4BE; 保存';
+  btn.onclick=savePreset;
+  return btn;
 }
 
 // ===== Column widths (for resize feature) =====
@@ -636,7 +803,6 @@ function setupColumnResize(){
     });
     handle.addEventListener('dblclick',e=>{
       e.preventDefault();e.stopPropagation();
-      // Auto-fit: measure max content width in this column
       const cls='col-'+COL_KEYS[idx];
       const cells=document.querySelectorAll('td.'+cls);
       let maxW=40;
@@ -653,24 +819,8 @@ function setupColumnResize(){
 }
 
 function render(){
-  const si=document.getElementById('si').value.toLowerCase();
   const pf=document.getElementById('pf').value;
-  const pfv=document.getElementById('pff').value;
-  const afv=document.getElementById('aff').value;
-  const cuv=document.getElementById('cuf').value;
-
-  let f=D.filter(r=>{
-    if(si&&!r.Name.toLowerCase().includes(si))return false;
-    const s=r.StageName||'';
-    if(selStages.size>0){let match=false;for(const st of selStages){if(s.startsWith(st)){match=true;break;}}if(!match)return false;}
-    if(afv!=='all'&&getArea(r.Prefecture||'')!==afv)return false;
-    if(pfv!=='all'&&(r.Prefecture||'')!==pfv)return false;
-    if(selCTypes.size>0&&!selCTypes.has(r.ConstractType__c||''))return false;
-    if(cuv==='none'&&r.ConstUserName)return false;
-    if(cuv!=='all'&&cuv!=='none'&&(r.ConstUserName||'')!==cuv)return false;
-    if(activeEvs.size>0&&!hasActiveEvent(r))return false;
-    return true;
-  });
+  let f=getFilteredData();
 
   if(sortCol){
     f.sort((a,b)=>{
@@ -808,7 +958,6 @@ function render(){
 
   document.getElementById('gt').innerHTML='<thead>'+mr+dr+'</thead><tbody>'+tb+'</tbody>';
 
-  // Setup column resize handles after render
   setupColumnResize();
   updateStickyPositions();
 
@@ -822,17 +971,18 @@ function render(){
 function resetFilters(){
   const pfSel=document.getElementById('pff');
   while(pfSel.options.length>1) pfSel.remove(1);
-  const afSel=document.getElementById('aff');
-  while(afSel.options.length>1) afSel.remove(1);
+  document.getElementById('afPanel').innerHTML='';
   document.getElementById('ctPanel').innerHTML='';
   const cuSel=document.getElementById('cuf');
   while(cuSel.options.length>2) cuSel.remove(2);
+  selAreas.clear();
+  document.getElementById('afBtn').textContent='全て';
   selCTypes.clear();
   document.getElementById('ctBtn').textContent='全て';
   colWidths=[...COL_DEFAULTS];
 }
 
-// ===== fetch でデータ取得 =====
+// ===== fetch =====
 async function fetchData(){
   const res = await fetch(DATA_JSON_URL + '?t=' + Date.now());
   if(!res.ok) throw new Error('データ取得に失敗しました (status: ' + res.status + ')');
@@ -843,7 +993,6 @@ async function fetchData(){
   document.getElementById('ut').textContent = new Date().toLocaleString('ja-JP');
 }
 
-// ===== 手動リフレッシュ（ボタン） =====
 async function refreshData(){
   var btn = document.getElementById('refreshBtn');
   btn.disabled = true;
@@ -852,8 +1001,7 @@ async function refreshData(){
     await fetchData();
     resetFilters();
     populateFilters();
-    buildTodayDash();
-    render();
+    applyFilters();
     btn.innerHTML = '&#x2713; 更新完了';
     setTimeout(function(){ btn.innerHTML = '&#x21BB; データ更新'; btn.disabled = false; }, 2000);
   } catch(e){
@@ -867,9 +1015,9 @@ async function refreshData(){
 async function initApp(){
   try {
     await fetchData();
-    buildTodayDash();
     populateFilters();
-    render();
+    renderPresetButtons();
+    applyFilters();
   } catch(err) {
     document.getElementById('loading-overlay').innerHTML =
       '<p style="color:#c62828;font-size:16px;">&#x26A0; エラー: ' + err.message + '</p>' +
