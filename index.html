@@ -429,8 +429,9 @@ function buildTodayDash(){
     // Unconfirmed items: date set but not confirmed (within 30 days), OR date empty (stage 07 only)
     const svyDate = r.SurveyDate__c || '';
     const svyKk = r.SurveyKakutei__c === true || r.SurveyKakutei__c === 'true';
+    const is06or07 = stg.startsWith('06') || stg.startsWith('07');
     const is07 = stg.startsWith('07');
-    if(!svyKk && ((svyDate && svyDate >= todayStr && svyDate <= future30Str) || (!svyDate && is07))){
+    if(!svyKk && ((svyDate && svyDate >= todayStr && svyDate <= future30Str) || (!svyDate && is06or07))){
       todayItems['本現調日（未確定）'].push(r);
       totalCount++;
     }
