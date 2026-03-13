@@ -180,6 +180,9 @@ body.col-resizing * { cursor:col-resize !important; }
 .preset-btn.del { background:#ffebee; color:#c62828; border-color:#ef9a9a; font-size:9px; padding:3px 5px; }
 .preset-btn.del:hover { background:#ffcdd2; }
 </style>
+<!-- Firebase SDKs for Firestore shared presets -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -275,6 +278,23 @@ body.col-resizing * { cursor:col-resize !important; }
 
 <script>
 const DATA_JSON_URL = 'pph_data_v5.json';
+
+// ===== Firebase / Firestore for shared presets =====
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",  // TODO: replace with real apiKey from Firebase Console
+  authDomain: "pph-gantt-chart.firebaseapp.com",
+  projectId: "pph-gantt-chart",
+  storageBucket: "pph-gantt-chart.appspot.com"
+};
+let db = null, presetsRef = null, firestoreReady = false;
+try {
+  firebase.initializeApp(FIREBASE_CONFIG);
+  db = firebase.firestore();
+  presetsRef = db.collection('filterPresets');
+  firestoreReady = true;
+} catch(e) {
+  console.warn('Firestore init failed (apiKey未設定?). Falling back to localStorage.', e);
+}
 
 let D = [];
 const NOW = new Date(); NOW.setHours(0,0,0,0);
@@ -641,10 +661,33 @@ function applyFilters(){
   render();
 }
 
-// ===== Filter Preset Save/Load (localStorage) =====
+// ===== Filter Preset Save/Load (Firestore shared / localStorage fallback) =====
 const PRESET_KEY = 'pph_gantt_presets';
-function getPresets(){ try{ return JSON.parse(localStorage.getItem(PRESET_KEY)) || []; }catch(e){return [];} }
-function savePresets(arr){ localStorage.setItem(PRESET_KEY, JSON.stringify(arr)); }
+
+// localStorage fallback
+function getPresetsLocal(){ try{ return JSON.parse(localStorage.getItem(PRESET_KEY)) || []; }catch(e){return[];} }
+function savePresetsLocal(arr){ localStorage.setItem(PRESET_KEY, JSON.stringify(arr)); }
+
+// Firestore async helpers
+async function getPresets(){
+  if(\!firestoreReady) return getPresetsLocal();
+  try {
+    const snap = await presetsRef.orderBy('updatedAt','desc').get();
+    return snap.docs.map(doc=>({ id:doc.id, name:doc.data().name, state:doc.data().state }));
+  } catch(e){ console.warn('Firestore read failed, using localStorage',e); return getPresetsLocal(); }
+}
+async function firestoreSave(name, state){
+  const existing = await presetsRef.where('name','==',name).get();
+  const data = { name, state, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+  if(\!existing.empty) await presetsRef.doc(existing.docs[0].id).set(data);
+  else await presetsRef.add(data);
+}
+async function firestoreDelete(name){
+  const snap = await presetsRef.where('name','==',name).get();
+  const batch = db.batch();
+  snap.docs.forEach(doc=>batch.delete(doc.ref));
+  await batch.commit();
+}
 
 function getCurrentFilterState(){
   return {
@@ -660,7 +703,6 @@ function getCurrentFilterState(){
 }
 
 function applyPreset(state){
-  // Stages
   selStages.clear();
   (state.stages||[]).forEach(v=>selStages.add(v));
   document.querySelectorAll('#sfPanel input[type=checkbox]').forEach(cb=>{cb.checked=selStages.has(cb.value);});
@@ -669,7 +711,6 @@ function applyPreset(state){
   else if(selStages.size<=3) sfBtn.textContent=[...selStages].map(v=>v+'_').join(', ').replace(/_,/g,', ').replace(/_$/,'');
   else sfBtn.textContent=selStages.size+'件選択中';
 
-  // Areas
   selAreas.clear();
   (state.areas||[]).forEach(v=>selAreas.add(v));
   document.querySelectorAll('#afPanel input[type=checkbox]').forEach(cb=>{cb.checked=selAreas.has(cb.value);});
@@ -678,9 +719,7 @@ function applyPreset(state){
   else if(selAreas.size<=3) afBtn.textContent=[...selAreas].join(', ');
   else afBtn.textContent=selAreas.size+'件選択中';
 
-  // Pref
   document.getElementById('pff').value=state.pref||'all';
-  // CType
   selCTypes.clear();
   (state.ctype||[]).forEach(v=>selCTypes.add(v));
   document.querySelectorAll('#ctPanel input[type=checkbox]').forEach(cb=>{cb.checked=selCTypes.has(cb.value);});
@@ -689,13 +728,9 @@ function applyPreset(state){
   else if(selCTypes.size<=2) ctBtn.textContent=[...selCTypes].join(', ');
   else ctBtn.textContent=selCTypes.size+'件選択中';
 
-  // ConstUser
   document.getElementById('cuf').value=state.constUser||'all';
-  // Search
   document.getElementById('si').value=state.search||'';
-  // Period
   document.getElementById('pf').value=state.period||'6';
-  // Events
   activeEvs.clear();
   (state.events||[]).forEach(v=>activeEvs.add(v));
   const allFlt=document.querySelectorAll('.legend-item.flt');
@@ -705,38 +740,44 @@ function applyPreset(state){
   applyFilters();
 }
 
-function savePreset(){
+async function savePreset(){
   const name = prompt('条件名を入力してください:');
-  if(!name) return;
-  const presets = getPresets();
-  const existing = presets.findIndex(p=>p.name===name);
-  const entry = { name, state: getCurrentFilterState() };
-  if(existing>=0) presets[existing]=entry; else presets.push(entry);
-  savePresets(presets);
-  renderPresetButtons();
+  if(\!name||\!name.trim()) return;
+  const state = getCurrentFilterState();
+  if(firestoreReady){
+    try { await firestoreSave(name.trim(), state); } catch(e){ console.error('Firestore save failed',e); alert('保存に失敗しました'); return; }
+  } else {
+    const presets = getPresetsLocal();
+    const idx = presets.findIndex(p=>p.name===name.trim());
+    const entry = { name:name.trim(), state };
+    if(idx>=0) presets[idx]=entry; else presets.push(entry);
+    savePresetsLocal(presets);
+  }
+  await renderPresetButtons();
 }
 
-function loadPreset(name){
-  const presets = getPresets();
+async function loadPreset(name){
+  const presets = await getPresets();
   const p = presets.find(x=>x.name===name);
   if(p) applyPreset(p.state);
-  renderPresetButtons(name);
+  await renderPresetButtons(name);
 }
 
-function deletePreset(name, ev){
-  ev.stopPropagation();
-  if(!confirm('「'+name+'」を削除しますか？')) return;
-  const presets = getPresets().filter(p=>p.name!==name);
-  savePresets(presets);
-  renderPresetButtons();
+async function deletePreset(name, ev){
+  if(ev) ev.stopPropagation();
+  if(\!confirm('「'+name+'」を削除しますか？')) return;
+  if(firestoreReady){
+    try { await firestoreDelete(name); } catch(e){ console.error('Firestore delete failed',e); return; }
+  } else {
+    savePresetsLocal(getPresetsLocal().filter(p=>p.name\!==name));
+  }
+  await renderPresetButtons();
 }
 
-function renderPresetButtons(activeName){
+async function renderPresetButtons(activeName){
   const container = document.getElementById('filterPresets');
-  // Keep only the save button (last child)
-  const saveBtn = container.querySelector('.save');
   container.innerHTML = '<span style="font-size:10px;color:#888;border-left:1px solid #ccc;padding-left:10px;">条件:</span>';
-  const presets = getPresets();
+  const presets = await getPresets();
   presets.forEach(p=>{
     const btn = document.createElement('button');
     btn.className = 'preset-btn' + (activeName===p.name?' active':'');
@@ -753,14 +794,18 @@ function renderPresetButtons(activeName){
     wrap.appendChild(del);
     container.appendChild(wrap);
   });
-  container.appendChild(saveBtn || createSaveBtn());
-}
-function createSaveBtn(){
-  const btn = document.createElement('button');
-  btn.className='preset-btn save';
-  btn.innerHTML='&#x1F4BE; 保存';
-  btn.onclick=savePreset;
-  return btn;
+  const saveBtn = document.createElement('button');
+  saveBtn.className='preset-btn save';
+  saveBtn.innerHTML='&#x1F4BE; 保存';
+  saveBtn.onclick=savePreset;
+  container.appendChild(saveBtn);
+  if(\!firestoreReady){
+    const tag=document.createElement('span');
+    tag.style.cssText='font-size:9px;color:#ff9800;margin-left:4px;';
+    tag.textContent='(ローカル)';
+    tag.title='Firestore未接続 - このブラウザのみ保存';
+    container.appendChild(tag);
+  }
 }
 
 // ===== Column widths (for resize feature) =====
@@ -1025,7 +1070,7 @@ async function initApp(){
   try {
     await fetchData();
     populateFilters();
-    renderPresetButtons();
+    await renderPresetButtons();
     applyFilters();
   } catch(err) {
     document.getElementById('loading-overlay').innerHTML =
