@@ -435,12 +435,12 @@ function buildTodayDash(){
     const svyKk = r.SurveyKakutei__c === true || r.SurveyKakutei__c === 'true';
     const is06or07 = stg.startsWith('06') || stg.startsWith('07');
     const is07 = stg.startsWith('07');
-    if(!svyKk && ((svyDate && svyDate >= todayStr && svyDate <= future30Str) || (!svyDate && is06or07))){
+    if(is06or07 && !svyKk && (svyDate ? (svyDate >= todayStr && svyDate <= future30Str) : true)){
       todayItems['本現調日（未確定）'].push(r);
       totalCount++;
     }
     const kojiKk = r.KojiSekouKakuteibi__c === true || r.KojiSekouKakuteibi__c === 'true';
-    if(!kojiKk && ((kojiStr && kojiStr >= todayStr && kojiStr <= future30Str) || (!kojiStr && is07))){
+    if(is07 && !kojiKk && (kojiStr ? (kojiStr >= todayStr && kojiStr <= future30Str) : true)){
       todayItems['着工日（未確定）'].push(r);
       totalCount++;
     }
