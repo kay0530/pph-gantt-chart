@@ -403,6 +403,23 @@ function buildTodayDash(){
   let totalCount = 0;
   filtered.forEach(r => {
     const stg = r.StageName || '';
+    const kojiStr = r.KojiSekouyoteibi__c || '';
+    const kankoStr = r.Kankobi__c || '';
+
+    // Unconfirmed items: no stage filter (these span all stages)
+    const svyDate = r.SurveyDate__c || '';
+    const svyKk = r.SurveyKakutei__c === true || r.SurveyKakutei__c === 'true';
+    if(svyDate && !svyKk && svyDate >= todayStr && svyDate <= future30Str){
+      todayItems['本現調日（未確定）'].push(r);
+      totalCount++;
+    }
+    const kojiKk = r.KojiSekouKakuteibi__c === true || r.KojiSekouKakuteibi__c === 'true';
+    if(kojiStr && !kojiKk && kojiStr >= todayStr && kojiStr <= future30Str){
+      todayItems['着工日（未確定）'].push(r);
+      totalCount++;
+    }
+
+    // Stage 07+ filter for all other dashboard categories
     if(!isStage07plus(stg)) return;
     events.forEach(e => {
       const v = r[e.f];
@@ -411,8 +428,6 @@ function buildTodayDash(){
         totalCount++;
       }
     });
-    const kojiStr = r.KojiSekouyoteibi__c || '';
-    const kankoStr = r.Kankobi__c || '';
     if(kojiStr === todayStr && stg.startsWith('08')){
       todayItems['着工予定（本日）'].push(r);
       totalCount++;
@@ -430,17 +445,6 @@ function buildTodayDash(){
         todayItems['開通予定（明日）'].push(r);
         totalCount++;
       }
-    }
-    const svyDate = r.SurveyDate__c || '';
-    const svyKk = r.SurveyKakutei__c === true || r.SurveyKakutei__c === 'true';
-    if(svyDate && !svyKk && svyDate >= todayStr && svyDate <= future30Str){
-      todayItems['本現調日（未確定）'].push(r);
-      totalCount++;
-    }
-    const kojiKk = r.KojiSekouKakuteibi__c === true || r.KojiSekouKakuteibi__c === 'true';
-    if(kojiStr && !kojiKk && kojiStr >= todayStr && kojiStr <= future30Str){
-      todayItems['着工日（未確定）'].push(r);
-      totalCount++;
     }
     const todayLabels = [];
     allDateFields.forEach(df => {
@@ -766,17 +770,15 @@ let colWidths=[...COL_DEFAULTS];
 
 function updateStickyPositions(){
   const classes=['col-name','col-pref','col-area','col-type','col-tmpsvy','col-survey','col-svyck','col-const','col-stage','col-koji','col-kojick','col-next'];
-  let left=0;
+  // Build CSS rules instead of per-element inline styles (avoids 10,000+ DOM writes)
+  let css='', left=0;
   for(let i=0;i<classes.length;i++){
-    const els=document.querySelectorAll('.'+classes[i]);
-    els.forEach(el=>{
-      el.style.left=left+'px';
-      el.style.width=colWidths[i]+'px';
-      el.style.minWidth=colWidths[i]+'px';
-      el.style.maxWidth=colWidths[i]+'px';
-    });
+    css+='.'+classes[i]+'{left:'+left+'px;width:'+colWidths[i]+'px;min-width:'+colWidths[i]+'px;max-width:'+colWidths[i]+'px;}';
     left+=colWidths[i];
   }
+  let styleEl=document.getElementById('col-widths-style');
+  if(!styleEl){styleEl=document.createElement('style');styleEl.id='col-widths-style';document.head.appendChild(styleEl);}
+  styleEl.textContent=css;
 }
 
 function setupColumnResize(){
@@ -788,29 +790,36 @@ function setupColumnResize(){
       e.preventDefault();e.stopPropagation();
       document.body.classList.add('col-resizing');
       const startX=e.clientX, startW=colWidths[idx];
+      let rafId=0;
       function onMove(ev){
         const diff=ev.clientX-startX;
         colWidths[idx]=Math.max(20,startW+diff);
-        updateStickyPositions();
+        if(!rafId) rafId=requestAnimationFrame(()=>{updateStickyPositions();rafId=0;});
       }
       function onUp(){
         document.body.classList.remove('col-resizing');
         document.removeEventListener('mousemove',onMove);
         document.removeEventListener('mouseup',onUp);
+        updateStickyPositions();
       }
       document.addEventListener('mousemove',onMove);
       document.addEventListener('mouseup',onUp);
     });
     handle.addEventListener('dblclick',e=>{
       e.preventDefault();e.stopPropagation();
+      // Measure natural content width using a hidden off-screen element
       const cls='col-'+COL_KEYS[idx];
       const cells=document.querySelectorAll('td.'+cls);
       let maxW=40;
+      const probe=document.createElement('span');
+      probe.style.cssText='position:absolute;visibility:hidden;white-space:nowrap;font:inherit;padding:0 4px;';
+      document.body.appendChild(probe);
       cells.forEach(cell=>{
-        cell.style.width='auto';cell.style.minWidth='0';cell.style.maxWidth='none';
-        const w=cell.scrollWidth+8;
+        probe.textContent=cell.textContent;
+        const w=probe.offsetWidth+12;
         if(w>maxW)maxW=w;
       });
+      document.body.removeChild(probe);
       colWidths[idx]=Math.min(maxW,400);
       updateStickyPositions();
     });
