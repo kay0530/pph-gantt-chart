@@ -32,7 +32,10 @@ body { font-family:'Segoe UI','Meiryo',sans-serif; background:#f5f7fa; color:#33
 .refresh-btn .spin { display:inline-block; animation:spin 1s linear infinite; }
 
 /* === Today Dashboard === */
-.today-dash { background:#fff; border-bottom:2px solid #1a237e; padding:10px 24px; position:sticky; top:48px; z-index:190; }
+.today-dash { background:#fff; border-bottom:none; padding:10px 24px; position:sticky; top:48px; z-index:190; max-height:40vh; overflow-y:auto; }
+.dash-resizer { height:6px; background:linear-gradient(180deg,#1a237e,#3949ab); cursor:ns-resize; position:sticky; top:0; z-index:191; user-select:none; display:flex; align-items:center; justify-content:center; }
+.dash-resizer:hover, .dash-resizer.active { background:linear-gradient(180deg,#0d47a1,#1565c0); }
+.dash-resizer::after { content:''; width:40px; height:2px; background:rgba(255,255,255,0.6); border-radius:1px; }
 .today-dash h2 { font-size:14px; color:#1a237e; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
 .today-dash h2 .badge { background:#1a237e; color:#fff; font-size:11px; padding:2px 8px; border-radius:10px; }
 .dash-toggle { cursor:pointer; font-size:12px; color:#666; margin-left:auto; user-select:none; }
@@ -207,6 +210,7 @@ body.col-resizing * { cursor:col-resize !important; }
   </h2>
   <div class="dash-grid" id="dashGrid"></div>
 </div>
+<div class="dash-resizer" id="dashResizer"></div>
 
 <div class="controls" id="ctrlBar">
   <label>ステータス:</label>
@@ -562,6 +566,31 @@ function toggleCard(cardId){
   ul.style.display=open?'none':'';
   if(tog) tog.textContent=open?'\u25B6':'\u25BC';
 }
+
+// ===== Dashboard Resizer =====
+(function(){
+  const resizer=document.getElementById('dashResizer');
+  const dash=document.getElementById('todayDash');
+  if(!resizer||!dash) return;
+  let startY,startH,dragging=false;
+  resizer.addEventListener('mousedown',function(e){
+    e.preventDefault();
+    startY=e.clientY; startH=dash.offsetHeight; dragging=true;
+    resizer.classList.add('active');
+    document.body.style.cursor='ns-resize';
+  });
+  document.addEventListener('mousemove',function(e){
+    if(!dragging) return;
+    const newH=Math.max(60, startH+(e.clientY-startY));
+    dash.style.maxHeight=newH+'px';
+  });
+  document.addEventListener('mouseup',function(){
+    if(!dragging) return;
+    dragging=false;
+    resizer.classList.remove('active');
+    document.body.style.cursor='';
+  });
+})();
 
 // ===== Filters =====
 function populateFilters(){
