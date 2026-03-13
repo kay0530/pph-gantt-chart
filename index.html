@@ -670,7 +670,7 @@ function savePresetsLocal(arr){ localStorage.setItem(PRESET_KEY, JSON.stringify(
 
 // Firestore async helpers
 async function getPresets(){
-  if(\!firestoreReady) return getPresetsLocal();
+  if(!firestoreReady) return getPresetsLocal();
   try {
     const snap = await presetsRef.orderBy('updatedAt','desc').get();
     return snap.docs.map(doc=>({ id:doc.id, name:doc.data().name, state:doc.data().state }));
@@ -679,7 +679,7 @@ async function getPresets(){
 async function firestoreSave(name, state){
   const existing = await presetsRef.where('name','==',name).get();
   const data = { name, state, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
-  if(\!existing.empty) await presetsRef.doc(existing.docs[0].id).set(data);
+  if(!existing.empty) await presetsRef.doc(existing.docs[0].id).set(data);
   else await presetsRef.add(data);
 }
 async function firestoreDelete(name){
@@ -742,7 +742,7 @@ function applyPreset(state){
 
 async function savePreset(){
   const name = prompt('条件名を入力してください:');
-  if(\!name||\!name.trim()) return;
+  if(!name||!name.trim()) return;
   const state = getCurrentFilterState();
   if(firestoreReady){
     try { await firestoreSave(name.trim(), state); } catch(e){ console.error('Firestore save failed',e); alert('保存に失敗しました'); return; }
@@ -765,11 +765,11 @@ async function loadPreset(name){
 
 async function deletePreset(name, ev){
   if(ev) ev.stopPropagation();
-  if(\!confirm('「'+name+'」を削除しますか？')) return;
+  if(!confirm('「'+name+'」を削除しますか？')) return;
   if(firestoreReady){
     try { await firestoreDelete(name); } catch(e){ console.error('Firestore delete failed',e); return; }
   } else {
-    savePresetsLocal(getPresetsLocal().filter(p=>p.name\!==name));
+    savePresetsLocal(getPresetsLocal().filter(p=>p.name!==name));
   }
   await renderPresetButtons();
 }
@@ -799,7 +799,7 @@ async function renderPresetButtons(activeName){
   saveBtn.innerHTML='&#x1F4BE; 保存';
   saveBtn.onclick=savePreset;
   container.appendChild(saveBtn);
-  if(\!firestoreReady){
+  if(!firestoreReady){
     const tag=document.createElement('span');
     tag.style.cssText='font-size:9px;color:#ff9800;margin-left:4px;';
     tag.textContent='(ローカル)';
