@@ -426,16 +426,16 @@ function buildTodayDash(){
     const kojiStr = r.KojiSekouyoteibi__c || '';
     const kankoStr = r.Kankobi__c || '';
 
-    // Unconfirmed items: date set but not confirmed (within 30 days), OR date empty (stage 07+)
+    // Unconfirmed items: date set but not confirmed (within 30 days), OR date empty (stage 07 only)
     const svyDate = r.SurveyDate__c || '';
     const svyKk = r.SurveyKakutei__c === true || r.SurveyKakutei__c === 'true';
-    const is07plus = isStage07plus(stg);
-    if(!svyKk && ((svyDate && svyDate >= todayStr && svyDate <= future30Str) || (!svyDate && is07plus))){
+    const is07 = stg.startsWith('07');
+    if(!svyKk && ((svyDate && svyDate >= todayStr && svyDate <= future30Str) || (!svyDate && is07))){
       todayItems['本現調日（未確定）'].push(r);
       totalCount++;
     }
     const kojiKk = r.KojiSekouKakuteibi__c === true || r.KojiSekouKakuteibi__c === 'true';
-    if(!kojiKk && ((kojiStr && kojiStr >= todayStr && kojiStr <= future30Str) || (!kojiStr && is07plus))){
+    if(!kojiKk && ((kojiStr && kojiStr >= todayStr && kojiStr <= future30Str) || (!kojiStr && is07))){
       todayItems['着工日（未確定）'].push(r);
       totalCount++;
     }
