@@ -218,10 +218,14 @@ body.col-resizing * { cursor:col-resize !important; }
 <div class="dash-resizer" id="dashResizer"></div>
 
 <div class="controls" id="ctrlBar">
+  <label>検索:</label>
+  <input type="text" id="si" placeholder="商談名 / 取引先..." style="width:160px;" oninput="applyFilters()">
   <label>ステータス:</label>
   <div class="ms-wrap" id="sfWrap">
     <div class="ms-btn" id="sfBtn" onclick="document.getElementById('sfPanel').classList.toggle('open')">全て</div>
     <div class="ms-panel" id="sfPanel">
+      <label><input type="checkbox" id="stageAllChk" onchange="onStageAllChk()">全て</label>
+      <hr>
       <label><input type="checkbox" value="00" onchange="onStageChk()">00_潜在案件</label>
       <label><input type="checkbox" value="01" onchange="onStageChk()">01_見極め</label>
       <label><input type="checkbox" value="02" onchange="onStageChk()">02_メリット訴求</label>
@@ -246,13 +250,6 @@ body.col-resizing * { cursor:col-resize !important; }
     <div class="ms-btn" id="ctBtn" onclick="document.getElementById('ctPanel').classList.toggle('open')">全て</div>
     <div class="ms-panel" id="ctPanel"></div>
   </div>
-  <label>取引先:</label>
-  <div class="ms-wrap" id="cuWrap">
-    <div class="ms-btn" id="cuBtn" onclick="document.getElementById('cuPanel').classList.toggle('open')">全て</div>
-    <div class="ms-panel" id="cuPanel"></div>
-  </div>
-  <label>検索:</label>
-  <input type="text" id="si" placeholder="商談名..." style="width:140px;" oninput="applyFilters()">
   <label>期間:</label>
   <select id="pf" onchange="applyFilters()">
     <option value="3">3ヶ月</option><option value="6" selected>6ヶ月</option>
@@ -376,13 +373,12 @@ function getFilteredData(){
   const si=document.getElementById('si').value.toLowerCase();
   const pfv=document.getElementById('pff').value;
   return D.filter(r=>{
-    if(si&&!r.Name.toLowerCase().includes(si))return false;
+    if(si&&!r.Name.toLowerCase().includes(si)&&!(r.AccountName||'').toLowerCase().includes(si))return false;
     const s=r.StageName||'';
     if(selStages.size>0){let match=false;for(const st of selStages){if(s.startsWith(st)){match=true;break;}}if(!match)return false;}
     if(selAreas.size>0&&!selAreas.has(getArea(r.Prefecture||'')))return false;
     if(pfv!=='all'&&(r.Prefecture||'')!==pfv)return false;
     if(selCTypes.size>0&&!selCTypes.has(r.ConstractType__c||''))return false;
-    if(selAccounts.size>0&&!selAccounts.has(r.AccountName||''))return false;
     if(activeEvs.size>0&&!hasActiveEvent(r))return false;
     return true;
   });
@@ -598,16 +594,14 @@ function toggleCard(cardId){
 
 // ===== Filters =====
 function populateFilters(){
-  const prefSet=new Set(), ctSet=new Set(), acctSet=new Set(), areaSet=new Set();
+  const prefSet=new Set(), ctSet=new Set(), areaSet=new Set();
   D.forEach(r=>{
     if(r.Prefecture){prefSet.add(r.Prefecture);areaSet.add(getArea(r.Prefecture));}
     if(r.ConstractType__c)ctSet.add(r.ConstractType__c);
-    if(r.AccountName)acctSet.add(r.AccountName);
   });
   // Area multi-select
   const afPanel=document.getElementById('afPanel');
   const areaOrder=['北海道','東北','関東','北陸','中部','関西','中国','四国','九州'];
-  // '全て' toggle at the top
   const allLbl=document.createElement('label');
   allLbl.style.fontWeight='bold';allLbl.style.borderBottom='1px solid #ddd';allLbl.style.paddingBottom='4px';allLbl.style.marginBottom='2px';
   allLbl.innerHTML='<input type="checkbox" id="areaAllChk" onchange="onAreaAllChk()">全て';
@@ -616,28 +610,13 @@ function populateFilters(){
   // Prefecture
   const pfSel=document.getElementById('pff');
   [...prefSet].sort().forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;pfSel.appendChild(o);});
+  // Business type with '全て' toggle
   const ctPanel=document.getElementById('ctPanel');
+  const ctAllLbl=document.createElement('label');
+  ctAllLbl.style.fontWeight='bold';ctAllLbl.style.borderBottom='1px solid #ddd';ctAllLbl.style.paddingBottom='4px';ctAllLbl.style.marginBottom='2px';
+  ctAllLbl.innerHTML='<input type="checkbox" id="ctypeAllChk" onchange="onCTypeAllChk()">全て';
+  ctPanel.appendChild(ctAllLbl);
   [...ctSet].sort().forEach(c=>{const lbl=document.createElement('label');lbl.innerHTML='<input type="checkbox" value="'+c+'" onchange="onCTypeChk()">'+c;ctPanel.appendChild(lbl);});
-  // Account multi-select with search box
-  const cuPanel=document.getElementById('cuPanel');
-  // Search input
-  const cuSearch=document.createElement('input');
-  cuSearch.type='text';cuSearch.placeholder='取引先を検索...';cuSearch.className='ms-search';
-  cuSearch.addEventListener('input',function(){filterAccountList(this.value);});
-  cuSearch.addEventListener('click',function(e){e.stopPropagation();});
-  cuPanel.appendChild(cuSearch);
-  // 'All' toggle
-  const cuAllLbl=document.createElement('label');
-  cuAllLbl.style.fontWeight='bold';cuAllLbl.style.borderBottom='1px solid #ddd';cuAllLbl.style.paddingBottom='4px';cuAllLbl.style.marginBottom='2px';
-  cuAllLbl.innerHTML='<input type="checkbox" id="acctAllChk" onchange="onAcctAllChk()">全て';
-  cuPanel.appendChild(cuAllLbl);
-  // Individual account checkboxes
-  [...acctSet].sort((a,b)=>a.localeCompare(b,'ja')).forEach(a=>{
-    const lbl=document.createElement('label');
-    lbl.setAttribute('data-acct',a);
-    lbl.innerHTML='<input type="checkbox" value="'+a.replace(/"/g,'&quot;')+'" onchange="onAcctChk()">'+a;
-    cuPanel.appendChild(lbl);
-  });
 }
 
 let sortCol='',sortDir='asc';
@@ -649,10 +628,18 @@ function toggleSort(col){
 
 // === Multi-select stage filter ===
 let selStages=new Set();
+function onStageAllChk(){
+  const allCb=document.getElementById('stageAllChk');
+  const cbs=document.querySelectorAll('#sfPanel input[type=checkbox]:not(#stageAllChk)');
+  cbs.forEach(cb=>{cb.checked=allCb.checked;});
+  onStageChk();
+}
 function onStageChk(){
-  const cbs=document.querySelectorAll('#sfPanel input[type=checkbox]');
+  const cbs=document.querySelectorAll('#sfPanel input[type=checkbox]:not(#stageAllChk)');
   selStages.clear();
   cbs.forEach(cb=>{if(cb.checked)selStages.add(cb.value);});
+  const allCb=document.getElementById('stageAllChk');
+  if(allCb) allCb.checked=(selStages.size===cbs.length && cbs.length>0);
   const btn=document.getElementById('sfBtn');
   if(selStages.size===0) btn.textContent='全て';
   else if(selStages.size<=3) btn.textContent=[...selStages].map(v=>v+'_').join(', ').replace(/_,/g,', ').replace(/_$/,'');
@@ -684,10 +671,18 @@ function onAreaChk(){
 
 // === Multi-select business type filter ===
 let selCTypes=new Set();
+function onCTypeAllChk(){
+  const allCb=document.getElementById('ctypeAllChk');
+  const cbs=document.querySelectorAll('#ctPanel input[type=checkbox]:not(#ctypeAllChk)');
+  cbs.forEach(cb=>{cb.checked=allCb.checked;});
+  onCTypeChk();
+}
 function onCTypeChk(){
-  const cbs=document.querySelectorAll('#ctPanel input[type=checkbox]');
+  const cbs=document.querySelectorAll('#ctPanel input[type=checkbox]:not(#ctypeAllChk)');
   selCTypes.clear();
   cbs.forEach(cb=>{if(cb.checked)selCTypes.add(cb.value);});
+  const allCb=document.getElementById('ctypeAllChk');
+  if(allCb) allCb.checked=(selCTypes.size===cbs.length && cbs.length>0);
   const btn=document.getElementById('ctBtn');
   if(selCTypes.size===0) btn.textContent='全て';
   else if(selCTypes.size<=2) btn.textContent=[...selCTypes].join(', ');
@@ -695,40 +690,9 @@ function onCTypeChk(){
   applyFilters();
 }
 
-// === Multi-select account filter ===
-let selAccounts=new Set();
-function onAcctAllChk(){
-  const allCb=document.getElementById('acctAllChk');
-  const cbs=document.querySelectorAll('#cuPanel input[type=checkbox]:not(#acctAllChk)');
-  cbs.forEach(cb=>{cb.checked=allCb.checked;});
-  onAcctChk();
-}
-function onAcctChk(){
-  const cbs=document.querySelectorAll('#cuPanel input[type=checkbox]:not(#acctAllChk)');
-  selAccounts.clear();
-  cbs.forEach(cb=>{if(cb.checked)selAccounts.add(cb.value);});
-  // sync allChk state
-  const allCb=document.getElementById('acctAllChk');
-  const visibleCbs=document.querySelectorAll('#cuPanel label[data-acct]:not([style*="display: none"]) input[type=checkbox]');
-  if(allCb) allCb.checked=(selAccounts.size===cbs.length && cbs.length>0);
-  const btn=document.getElementById('cuBtn');
-  if(selAccounts.size===0) btn.textContent='全て';
-  else if(selAccounts.size<=2) btn.textContent=[...selAccounts].join(', ');
-  else btn.textContent=selAccounts.size+'件選択中';
-  applyFilters();
-}
-function filterAccountList(query){
-  const q=query.toLowerCase();
-  const labels=document.querySelectorAll('#cuPanel label[data-acct]');
-  labels.forEach(lbl=>{
-    const acct=lbl.getAttribute('data-acct').toLowerCase();
-    lbl.style.display=acct.includes(q)?'':'none';
-  });
-}
-
 // Close dropdowns on outside click
 document.addEventListener('click',e=>{
-  ['sfWrap','afWrap','ctWrap','cuWrap'].forEach(id=>{
+  ['sfWrap','afWrap','ctWrap'].forEach(id=>{
     const w=document.getElementById(id);
     if(w&&!w.contains(e.target)){const p=w.querySelector('.ms-panel');if(p)p.classList.remove('open');}
   });
@@ -802,7 +766,6 @@ function getCurrentFilterState(){
     areas: [...selAreas],
     pref: document.getElementById('pff').value,
     ctype: [...selCTypes],
-    accounts: [...selAccounts],
     search: document.getElementById('si').value,
     period: document.getElementById('pf').value,
     events: [...activeEvs]
@@ -812,7 +775,10 @@ function getCurrentFilterState(){
 function applyPreset(state){
   selStages.clear();
   (state.stages||[]).forEach(v=>selStages.add(v));
-  document.querySelectorAll('#sfPanel input[type=checkbox]').forEach(cb=>{cb.checked=selStages.has(cb.value);});
+  document.querySelectorAll('#sfPanel input[type=checkbox]:not(#stageAllChk)').forEach(cb=>{cb.checked=selStages.has(cb.value);});
+  const stageAllCb=document.getElementById('stageAllChk');
+  const stageCbs=document.querySelectorAll('#sfPanel input[type=checkbox]:not(#stageAllChk)');
+  if(stageAllCb) stageAllCb.checked=(selStages.size===stageCbs.length && stageCbs.length>0);
   const sfBtn=document.getElementById('sfBtn');
   if(selStages.size===0) sfBtn.textContent='全て';
   else if(selStages.size<=3) sfBtn.textContent=[...selStages].map(v=>v+'_').join(', ').replace(/_,/g,', ').replace(/_$/,'');
@@ -829,23 +795,14 @@ function applyPreset(state){
   document.getElementById('pff').value=state.pref||'all';
   selCTypes.clear();
   (state.ctype||[]).forEach(v=>selCTypes.add(v));
-  document.querySelectorAll('#ctPanel input[type=checkbox]').forEach(cb=>{cb.checked=selCTypes.has(cb.value);});
+  document.querySelectorAll('#ctPanel input[type=checkbox]:not(#ctypeAllChk)').forEach(cb=>{cb.checked=selCTypes.has(cb.value);});
+  const ctypeAllCb=document.getElementById('ctypeAllChk');
+  const ctypeCbs=document.querySelectorAll('#ctPanel input[type=checkbox]:not(#ctypeAllChk)');
+  if(ctypeAllCb) ctypeAllCb.checked=(selCTypes.size===ctypeCbs.length && ctypeCbs.length>0);
   const ctBtn=document.getElementById('ctBtn');
   if(selCTypes.size===0) ctBtn.textContent='全て';
   else if(selCTypes.size<=2) ctBtn.textContent=[...selCTypes].join(', ');
   else ctBtn.textContent=selCTypes.size+'件選択中';
-
-  selAccounts.clear();
-  (state.accounts||[]).forEach(v=>selAccounts.add(v));
-  document.querySelectorAll('#cuPanel input[type=checkbox]:not(#acctAllChk)').forEach(cb=>{cb.checked=selAccounts.has(cb.value);});
-  const cuBtn=document.getElementById('cuBtn');
-  if(selAccounts.size===0) cuBtn.textContent='全て';
-  else if(selAccounts.size<=2) cuBtn.textContent=[...selAccounts].join(', ');
-  else cuBtn.textContent=selAccounts.size+'件選択中';
-  // sync all checkbox
-  const acctAllCb=document.getElementById('acctAllChk');
-  const acctCbs=document.querySelectorAll('#cuPanel input[type=checkbox]:not(#acctAllChk)');
-  if(acctAllCb) acctAllCb.checked=(selAccounts.size===acctCbs.length && acctCbs.length>0);
 
   document.getElementById('si').value=state.search||'';
   document.getElementById('pf').value=state.period||'6';
@@ -1148,13 +1105,10 @@ function resetFilters(){
   while(pfSel.options.length>1) pfSel.remove(1);
   document.getElementById('afPanel').innerHTML='';
   document.getElementById('ctPanel').innerHTML='';
-  document.getElementById('cuPanel').innerHTML='';
   selAreas.clear();
   document.getElementById('afBtn').textContent='全て';
   selCTypes.clear();
   document.getElementById('ctBtn').textContent='全て';
-  selAccounts.clear();
-  document.getElementById('cuBtn').textContent='全て';
   colWidths=[...COL_DEFAULTS];
 }
 
