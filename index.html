@@ -509,9 +509,10 @@ function buildTodayDash(){
     const isTmr = e.label === '開通予定（明日）';
     const isUnconfirmed = e.label.includes('未確定');
     const cardBorder = isTmr ? 'border:1px dashed #66bb6a;' : isUnconfirmed ? 'border:1px dashed #ff9800;background:#fff8e1;' : '';
+    const cardId = 'dashCard_'+e.label.replace(/[^a-zA-Z]/g,'_');
     html += '<div class="dash-card" style="'+cardBorder+'">';
-    html += '<h3><span class="icon '+e.icCls+'">'+e.icon+'</span>'+e.label+'<span style="color:#666;font-weight:400;font-size:11px;">('+items.length+'件)</span></h3>';
-    html += '<ul>';
+    html += '<h3 style="cursor:pointer;user-select:none;" onclick="toggleCard(''+cardId+'')"><span class="icon '+e.icCls+'">'+e.icon+'</span>'+e.label+'<span style="color:#666;font-weight:400;font-size:11px;">('+items.length+'件)</span><span id="'+cardId+'_tog" style="float:right;font-size:10px;color:#999;">▼</span></h3>';
+    html += '<ul id="'+cardId+'">';
     items.forEach(r => {
       const pref = r.Prefecture || '';
       const st = r.StageName || '';
@@ -553,6 +554,14 @@ function toggleDash(){
   document.getElementById('dashGrid').classList.toggle('dash-hidden', !dashOpen);
   document.getElementById('dashToggle').textContent = dashOpen ? '\u25BC たたむ' : '\u25B6 ひらく';
 }
+function toggleCard(cardId){
+  const ul=document.getElementById(cardId);
+  const tog=document.getElementById(cardId+'_tog');
+  if(!ul)return;
+  const open=ul.style.display!=='none';
+  ul.style.display=open?'none':'';
+  if(tog) tog.textContent=open?'\u25B6':'\u25BC';
+}
 
 // ===== Filters =====
 function populateFilters(){
@@ -565,6 +574,11 @@ function populateFilters(){
   // Area multi-select
   const afPanel=document.getElementById('afPanel');
   const areaOrder=['北海道','東北','関東','北陸','中部','関西','中国','四国','九州'];
+  // '全て' toggle at the top
+  const allLbl=document.createElement('label');
+  allLbl.style.fontWeight='bold';allLbl.style.borderBottom='1px solid #ddd';allLbl.style.paddingBottom='4px';allLbl.style.marginBottom='2px';
+  allLbl.innerHTML='<input type="checkbox" id="areaAllChk" onchange="onAreaAllChk()">全て';
+  afPanel.appendChild(allLbl);
   areaOrder.forEach(a=>{if(areaSet.has(a)){const lbl=document.createElement('label');lbl.innerHTML='<input type="checkbox" value="'+a+'" onchange="onAreaChk()">'+a;afPanel.appendChild(lbl);}});
   // Prefecture
   const pfSel=document.getElementById('pff');
@@ -597,10 +611,19 @@ function onStageChk(){
 
 // === Multi-select area filter ===
 let selAreas=new Set();
+function onAreaAllChk(){
+  const allCb=document.getElementById('areaAllChk');
+  const cbs=document.querySelectorAll('#afPanel input[type=checkbox]:not(#areaAllChk)');
+  cbs.forEach(cb=>{cb.checked=allCb.checked;});
+  onAreaChk();
+}
 function onAreaChk(){
-  const cbs=document.querySelectorAll('#afPanel input[type=checkbox]');
+  const cbs=document.querySelectorAll('#afPanel input[type=checkbox]:not(#areaAllChk)');
   selAreas.clear();
   cbs.forEach(cb=>{if(cb.checked)selAreas.add(cb.value);});
+  // sync allChk state
+  const allCb=document.getElementById('areaAllChk');
+  if(allCb) allCb.checked=(selAreas.size===cbs.length && cbs.length>0);
   const btn=document.getElementById('afBtn');
   if(selAreas.size===0) btn.textContent='全て';
   else if(selAreas.size<=3) btn.textContent=[...selAreas].join(', ');
