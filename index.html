@@ -511,7 +511,7 @@ function buildTodayDash(){
     const cardBorder = isTmr ? 'border:1px dashed #66bb6a;' : isUnconfirmed ? 'border:1px dashed #ff9800;background:#fff8e1;' : '';
     const cardId = 'dashCard_'+e.label.replace(/[^a-zA-Z]/g,'_');
     html += '<div class="dash-card" style="'+cardBorder+'">';
-    html += '<h3 style="cursor:pointer;user-select:none;" onclick="toggleCard(''+cardId+'')"><span class="icon '+e.icCls+'">'+e.icon+'</span>'+e.label+'<span style="color:#666;font-weight:400;font-size:11px;">('+items.length+'件)</span><span id="'+cardId+'_tog" style="float:right;font-size:10px;color:#999;">▼</span></h3>';
+    html += '<h3 style="cursor:pointer;user-select:none;" onclick="toggleCard(&quot;'+cardId+'&quot;)"><span class="icon '+e.icCls+'">'+e.icon+'</span>'+e.label+'<span style="color:#666;font-weight:400;font-size:11px;">('+items.length+'件)</span><span id="'+cardId+'_tog" style="float:right;font-size:10px;color:#999;">\u25BC</span></h3>';
     html += '<ul id="'+cardId+'">';
     items.forEach(r => {
       const pref = r.Prefecture || '';
