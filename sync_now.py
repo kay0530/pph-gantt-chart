@@ -12,6 +12,7 @@ FIELD_RENAMES = {
     'Location__r.State__c': 'Prefecture',
     'InvestigationUser__r.Name': 'InvestigationUserName',
     'ConstUser__r.Name': 'ConstUserName',
+    'Account.Name': 'AccountName',
 }
 
 # Boolean fields

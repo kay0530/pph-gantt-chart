@@ -84,6 +84,9 @@ body { font-family:'Segoe UI','Meiryo',sans-serif; background:#f5f7fa; color:#33
 .ms-panel label { display:flex; align-items:center; gap:6px; padding:5px 10px; font-size:12px; cursor:pointer; white-space:nowrap; }
 .ms-panel label:hover { background:#e8eaf6; }
 .ms-panel hr { border:none; border-top:1px solid #e0e0e0; margin:2px 0; }
+/* Search box inside multi-select panel */
+.ms-panel .ms-search { display:block; width:calc(100% - 16px); margin:6px 8px 4px; padding:4px 8px; font-size:12px; border:1px solid #ccc; border-radius:3px; box-sizing:border-box; }
+.ms-panel .ms-search:focus { outline:none; border-color:#5c6bc0; }
 
 /* Clickable legend filters */
 .legend-item.flt { cursor:pointer; padding:3px 6px; border-radius:4px; border:2px solid transparent; transition:all 0.15s; user-select:none; }
@@ -102,18 +105,20 @@ tr:hover td:not(.dc) { background:#e8eaf6 !important; }
 tr:hover td.dc { box-shadow: inset 0 2px 0 #9fa8da, inset 0 -2px 0 #9fa8da; }
 
 /* ---- Sticky columns ---- */
-.col-name    { width:200px; min-width:60px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:sticky; left:0;     background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:11px; padding:3px 6px; }
-.col-pref    { width:56px;  min-width:30px; white-space:nowrap; position:sticky; left:200px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 3px; text-align:center; }
-.col-area    { width:48px;  min-width:30px; white-space:nowrap; position:sticky; left:256px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 3px; text-align:center; }
-.col-type    { width:56px;  min-width:30px; white-space:nowrap; position:sticky; left:304px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 3px; text-align:center; }
-.col-tmpsvy  { width:70px;  min-width:40px; white-space:nowrap; position:sticky; left:360px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 3px; text-align:center; }
-.col-survey  { width:56px;  min-width:40px; white-space:nowrap; position:sticky; left:430px;  background:#fff; z-index:5; font-size:10px; padding:2px 3px; text-align:center; }
-.col-svyck   { width:30px;  min-width:20px; white-space:nowrap; position:sticky; left:486px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 1px; text-align:center; }
-.col-const   { width:56px;  min-width:30px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:sticky; left:516px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 3px; text-align:center; }
-.col-stage   { width:110px; min-width:50px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:sticky; left:572px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:3px 4px; }
-.col-koji    { width:56px;  min-width:40px; white-space:nowrap; position:sticky; left:682px;  background:#fff; z-index:5; font-size:10px; padding:2px 3px; text-align:center; }
-.col-kojick  { width:30px;  min-width:20px; white-space:nowrap; position:sticky; left:738px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 1px; text-align:center; }
-.col-next    { width:120px; min-width:50px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:sticky; left:768px;  background:#fff; z-index:5; border-right:2px solid #1a237e; font-size:10px; padding:3px 4px; }
+/* Account column inserted before Name */
+.col-account { width:150px; min-width:60px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:sticky; left:0;     background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:3px 6px; }
+.col-name    { width:200px; min-width:60px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:sticky; left:150px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:11px; padding:3px 6px; }
+.col-pref    { width:56px;  min-width:30px; white-space:nowrap; position:sticky; left:350px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 3px; text-align:center; }
+.col-area    { width:48px;  min-width:30px; white-space:nowrap; position:sticky; left:406px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 3px; text-align:center; }
+.col-type    { width:56px;  min-width:30px; white-space:nowrap; position:sticky; left:454px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 3px; text-align:center; }
+.col-tmpsvy  { width:70px;  min-width:40px; white-space:nowrap; position:sticky; left:510px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 3px; text-align:center; }
+.col-survey  { width:56px;  min-width:40px; white-space:nowrap; position:sticky; left:580px;  background:#fff; z-index:5; font-size:10px; padding:2px 3px; text-align:center; }
+.col-svyck   { width:30px;  min-width:20px; white-space:nowrap; position:sticky; left:636px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 1px; text-align:center; }
+.col-const   { width:56px;  min-width:30px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:sticky; left:666px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 3px; text-align:center; }
+.col-stage   { width:110px; min-width:50px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:sticky; left:722px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:3px 4px; }
+.col-koji    { width:56px;  min-width:40px; white-space:nowrap; position:sticky; left:832px;  background:#fff; z-index:5; font-size:10px; padding:2px 3px; text-align:center; }
+.col-kojick  { width:30px;  min-width:20px; white-space:nowrap; position:sticky; left:888px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 1px; text-align:center; }
+.col-next    { width:120px; min-width:50px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:sticky; left:918px;  background:#fff; z-index:5; border-right:2px solid #1a237e; font-size:10px; padding:3px 4px; }
 td.col-pref, td.col-area, td.col-type, td.col-tmpsvy, td.col-survey, td.col-svyck,
 td.col-const, td.col-stage, td.col-koji, td.col-kojick, td.col-next { border-left-color:#fff; }
 td.col-name, td.col-pref, td.col-area, td.col-type, td.col-tmpsvy, td.col-survey, td.col-svyck,
@@ -241,10 +246,11 @@ body.col-resizing * { cursor:col-resize !important; }
     <div class="ms-btn" id="ctBtn" onclick="document.getElementById('ctPanel').classList.toggle('open')">全て</div>
     <div class="ms-panel" id="ctPanel"></div>
   </div>
-  <label>施工担当:</label>
-  <select id="cuf" onchange="applyFilters()">
-    <option value="all" selected>全て</option><option value="none">未設定</option>
-  </select>
+  <label>取引先:</label>
+  <div class="ms-wrap" id="cuWrap">
+    <div class="ms-btn" id="cuBtn" onclick="document.getElementById('cuPanel').classList.toggle('open')">全て</div>
+    <div class="ms-panel" id="cuPanel"></div>
+  </div>
   <label>検索:</label>
   <input type="text" id="si" placeholder="商談名..." style="width:140px;" oninput="applyFilters()">
   <label>期間:</label>
@@ -369,7 +375,6 @@ function getNextEvent(r){
 function getFilteredData(){
   const si=document.getElementById('si').value.toLowerCase();
   const pfv=document.getElementById('pff').value;
-  const cuv=document.getElementById('cuf').value;
   return D.filter(r=>{
     if(si&&!r.Name.toLowerCase().includes(si))return false;
     const s=r.StageName||'';
@@ -377,8 +382,7 @@ function getFilteredData(){
     if(selAreas.size>0&&!selAreas.has(getArea(r.Prefecture||'')))return false;
     if(pfv!=='all'&&(r.Prefecture||'')!==pfv)return false;
     if(selCTypes.size>0&&!selCTypes.has(r.ConstractType__c||''))return false;
-    if(cuv==='none'&&r.ConstUserName)return false;
-    if(cuv!=='all'&&cuv!=='none'&&(r.ConstUserName||'')!==cuv)return false;
+    if(selAccounts.size>0&&!selAccounts.has(r.AccountName||''))return false;
     if(activeEvs.size>0&&!hasActiveEvent(r))return false;
     return true;
   });
@@ -594,11 +598,11 @@ function toggleCard(cardId){
 
 // ===== Filters =====
 function populateFilters(){
-  const prefSet=new Set(), ctSet=new Set(), cuSet=new Set(), areaSet=new Set();
+  const prefSet=new Set(), ctSet=new Set(), acctSet=new Set(), areaSet=new Set();
   D.forEach(r=>{
     if(r.Prefecture){prefSet.add(r.Prefecture);areaSet.add(getArea(r.Prefecture));}
     if(r.ConstractType__c)ctSet.add(r.ConstractType__c);
-    if(r.ConstUserName)cuSet.add(r.ConstUserName);
+    if(r.AccountName)acctSet.add(r.AccountName);
   });
   // Area multi-select
   const afPanel=document.getElementById('afPanel');
@@ -614,8 +618,26 @@ function populateFilters(){
   [...prefSet].sort().forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;pfSel.appendChild(o);});
   const ctPanel=document.getElementById('ctPanel');
   [...ctSet].sort().forEach(c=>{const lbl=document.createElement('label');lbl.innerHTML='<input type="checkbox" value="'+c+'" onchange="onCTypeChk()">'+c;ctPanel.appendChild(lbl);});
-  const cuSel=document.getElementById('cuf');
-  [...cuSet].sort((a,b)=>a.localeCompare(b,'ja')).forEach(u=>{const o=document.createElement('option');o.value=u;o.textContent=u;cuSel.appendChild(o);});
+  // Account multi-select with search box
+  const cuPanel=document.getElementById('cuPanel');
+  // Search input
+  const cuSearch=document.createElement('input');
+  cuSearch.type='text';cuSearch.placeholder='取引先を検索...';cuSearch.className='ms-search';
+  cuSearch.addEventListener('input',function(){filterAccountList(this.value);});
+  cuSearch.addEventListener('click',function(e){e.stopPropagation();});
+  cuPanel.appendChild(cuSearch);
+  // 'All' toggle
+  const cuAllLbl=document.createElement('label');
+  cuAllLbl.style.fontWeight='bold';cuAllLbl.style.borderBottom='1px solid #ddd';cuAllLbl.style.paddingBottom='4px';cuAllLbl.style.marginBottom='2px';
+  cuAllLbl.innerHTML='<input type="checkbox" id="acctAllChk" onchange="onAcctAllChk()">全て';
+  cuPanel.appendChild(cuAllLbl);
+  // Individual account checkboxes
+  [...acctSet].sort((a,b)=>a.localeCompare(b,'ja')).forEach(a=>{
+    const lbl=document.createElement('label');
+    lbl.setAttribute('data-acct',a);
+    lbl.innerHTML='<input type="checkbox" value="'+a.replace(/"/g,'&quot;')+'" onchange="onAcctChk()">'+a;
+    cuPanel.appendChild(lbl);
+  });
 }
 
 let sortCol='',sortDir='asc';
@@ -673,9 +695,40 @@ function onCTypeChk(){
   applyFilters();
 }
 
+// === Multi-select account filter ===
+let selAccounts=new Set();
+function onAcctAllChk(){
+  const allCb=document.getElementById('acctAllChk');
+  const cbs=document.querySelectorAll('#cuPanel input[type=checkbox]:not(#acctAllChk)');
+  cbs.forEach(cb=>{cb.checked=allCb.checked;});
+  onAcctChk();
+}
+function onAcctChk(){
+  const cbs=document.querySelectorAll('#cuPanel input[type=checkbox]:not(#acctAllChk)');
+  selAccounts.clear();
+  cbs.forEach(cb=>{if(cb.checked)selAccounts.add(cb.value);});
+  // sync allChk state
+  const allCb=document.getElementById('acctAllChk');
+  const visibleCbs=document.querySelectorAll('#cuPanel label[data-acct]:not([style*="display: none"]) input[type=checkbox]');
+  if(allCb) allCb.checked=(selAccounts.size===cbs.length && cbs.length>0);
+  const btn=document.getElementById('cuBtn');
+  if(selAccounts.size===0) btn.textContent='全て';
+  else if(selAccounts.size<=2) btn.textContent=[...selAccounts].join(', ');
+  else btn.textContent=selAccounts.size+'件選択中';
+  applyFilters();
+}
+function filterAccountList(query){
+  const q=query.toLowerCase();
+  const labels=document.querySelectorAll('#cuPanel label[data-acct]');
+  labels.forEach(lbl=>{
+    const acct=lbl.getAttribute('data-acct').toLowerCase();
+    lbl.style.display=acct.includes(q)?'':'none';
+  });
+}
+
 // Close dropdowns on outside click
 document.addEventListener('click',e=>{
-  ['sfWrap','afWrap','ctWrap'].forEach(id=>{
+  ['sfWrap','afWrap','ctWrap','cuWrap'].forEach(id=>{
     const w=document.getElementById(id);
     if(w&&!w.contains(e.target)){const p=w.querySelector('.ms-panel');if(p)p.classList.remove('open');}
   });
@@ -749,7 +802,7 @@ function getCurrentFilterState(){
     areas: [...selAreas],
     pref: document.getElementById('pff').value,
     ctype: [...selCTypes],
-    constUser: document.getElementById('cuf').value,
+    accounts: [...selAccounts],
     search: document.getElementById('si').value,
     period: document.getElementById('pf').value,
     events: [...activeEvs]
@@ -782,7 +835,18 @@ function applyPreset(state){
   else if(selCTypes.size<=2) ctBtn.textContent=[...selCTypes].join(', ');
   else ctBtn.textContent=selCTypes.size+'件選択中';
 
-  document.getElementById('cuf').value=state.constUser||'all';
+  selAccounts.clear();
+  (state.accounts||[]).forEach(v=>selAccounts.add(v));
+  document.querySelectorAll('#cuPanel input[type=checkbox]:not(#acctAllChk)').forEach(cb=>{cb.checked=selAccounts.has(cb.value);});
+  const cuBtn=document.getElementById('cuBtn');
+  if(selAccounts.size===0) cuBtn.textContent='全て';
+  else if(selAccounts.size<=2) cuBtn.textContent=[...selAccounts].join(', ');
+  else cuBtn.textContent=selAccounts.size+'件選択中';
+  // sync all checkbox
+  const acctAllCb=document.getElementById('acctAllChk');
+  const acctCbs=document.querySelectorAll('#cuPanel input[type=checkbox]:not(#acctAllChk)');
+  if(acctAllCb) acctAllCb.checked=(selAccounts.size===acctCbs.length && acctCbs.length>0);
+
   document.getElementById('si').value=state.search||'';
   document.getElementById('pf').value=state.period||'6';
   activeEvs.clear();
@@ -863,12 +927,12 @@ async function renderPresetButtons(activeName){
 }
 
 // ===== Column widths (for resize feature) =====
-const COL_KEYS=['name','pref','area','type','tmpsvy','survey','svyck','const','stage','koji','kojick','next'];
-const COL_DEFAULTS=[200,56,48,56,70,56,30,56,110,56,30,120];
+const COL_KEYS=['account','name','pref','area','type','tmpsvy','survey','svyck','const','stage','koji','kojick','next'];
+const COL_DEFAULTS=[150,200,56,48,56,70,56,30,56,110,56,30,120];
 let colWidths=[...COL_DEFAULTS];
 
 function updateStickyPositions(){
-  const classes=['col-name','col-pref','col-area','col-type','col-tmpsvy','col-survey','col-svyck','col-const','col-stage','col-koji','col-kojick','col-next'];
+  const classes=['col-account','col-name','col-pref','col-area','col-type','col-tmpsvy','col-survey','col-svyck','col-const','col-stage','col-koji','col-kojick','col-next'];
   // Build CSS rules instead of per-element inline styles (avoids 10,000+ DOM writes)
   let css='', left=0;
   for(let i=0;i<classes.length;i++){
@@ -933,7 +997,8 @@ function render(){
   if(sortCol){
     f.sort((a,b)=>{
       let va,vb;
-      if(sortCol==='name'){va=a.Name||'';vb=b.Name||'';}
+      if(sortCol==='account'){va=a.AccountName||'';vb=b.AccountName||'';}
+      else if(sortCol==='name'){va=a.Name||'';vb=b.Name||'';}
       else if(sortCol==='pref'){va=a.Prefecture||'\uff9d';vb=b.Prefecture||'\uff9d';}
       else if(sortCol==='area'){va=getArea(a.Prefecture||'');vb=getArea(b.Prefecture||'');}
       else if(sortCol==='type'){va=a.ConstractType__c||'\uff9d';vb=b.ConstractType__c||'\uff9d';}
@@ -976,9 +1041,9 @@ function render(){
   while(cd<=ed){const m=cd.getFullYear()*100+cd.getMonth();if(m!==cm){if(cm!==-1)mons.push({m:cm,d:md});cm=m;md=0;}md++;cd.setDate(cd.getDate()+1);}
   if(md>0)mons.push({m:cm,d:md});
 
-  const scs=['name','pref','area','type','tmpsvy','survey','svyck','const','stage','koji','kojick','next'];
-  const scl=['商談名','県','エリア','区分','仮現調日','本現調日','確定','施工担当','ステータス','着工日','確定','次の予定'];
-  const scc=['col-name','col-pref','col-area','col-type','col-tmpsvy','col-survey','col-svyck','col-const','col-stage','col-koji','col-kojick','col-next'];
+  const scs=['account','name','pref','area','type','tmpsvy','survey','svyck','const','stage','koji','kojick','next'];
+  const scl=['取引先','商談名','県','エリア','区分','仮現調日','本現調日','確定','施工担当','ステータス','着工日','確定','次の予定'];
+  const scc=['col-account','col-name','col-pref','col-area','col-type','col-tmpsvy','col-survey','col-svyck','col-const','col-stage','col-koji','col-kojick','col-next'];
   let mr='<tr>';
   for(let i=0;i<scs.length;i++){
     let cls=scc[i]+' sortable';
@@ -1021,6 +1086,8 @@ function render(){
     const svyStr=r.SurveyDate__c||'';
 
     tb+='<tr>';
+    const acctName=r.AccountName||'';
+    tb+='<td class="col-account" title="'+esc(acctName)+'">'+esc(acctName||'-')+'</td>';
     tb+='<td class="col-name" title="'+esc(r.Name)+'">'+esc(r.Name)+'</td>';
     tb+='<td class="col-pref">'+esc(pref)+'</td>';
     tb+='<td class="col-area">'+esc(area)+'</td>';
@@ -1081,12 +1148,13 @@ function resetFilters(){
   while(pfSel.options.length>1) pfSel.remove(1);
   document.getElementById('afPanel').innerHTML='';
   document.getElementById('ctPanel').innerHTML='';
-  const cuSel=document.getElementById('cuf');
-  while(cuSel.options.length>2) cuSel.remove(2);
+  document.getElementById('cuPanel').innerHTML='';
   selAreas.clear();
   document.getElementById('afBtn').textContent='全て';
   selCTypes.clear();
   document.getElementById('ctBtn').textContent='全て';
+  selAccounts.clear();
+  document.getElementById('cuBtn').textContent='全て';
   colWidths=[...COL_DEFAULTS];
 }
 
