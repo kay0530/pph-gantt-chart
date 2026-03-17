@@ -1162,6 +1162,7 @@ function render(){
     if(hasFilter){
       mr+='<span class="hf-icon'+(filterActive?' active':'')+'" onclick="event.stopPropagation();toggleHfPanel(\''+colKey+'\',event)">▼</span>';
     }
+    mr+='<span class="col-resize" onmousedown="startResize(event,'+i+')"></span>';
     mr+='</th>';
   }
   mons.forEach(m=>{const y=Math.floor(m.m/100),mn=(m.m%100)+1;mr+='<th class="mh" colspan="'+m.d+'">'+y+'/'+mn+'</th>';});
