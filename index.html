@@ -8,7 +8,7 @@
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 html, body { height:100%; }
-body { font-family:'Segoe UI','Meiryo',sans-serif; background:#f5f7fa; color:#333; display:flex; flex-direction:column; }
+body { font-family:'Meiryo','メイリオ',sans-serif; background:#f5f7fa; color:#333; display:flex; flex-direction:column; }
 
 /* === Loading Overlay === */
 #loading-overlay {
@@ -87,6 +87,7 @@ body { font-family:'Segoe UI','Meiryo',sans-serif; background:#f5f7fa; color:#33
 /* Search box inside multi-select panel */
 .ms-panel .ms-search { display:block; width:calc(100% - 16px); margin:6px 8px 4px; padding:4px 8px; font-size:12px; border:1px solid #ccc; border-radius:3px; box-sizing:border-box; }
 .ms-panel .ms-search:focus { outline:none; border-color:#5c6bc0; }
+#acctPanel, #oppPanel { min-width:280px; max-height:350px; }
 
 /* Clickable legend filters */
 .legend-item.flt { cursor:pointer; padding:3px 6px; border-radius:4px; border:2px solid transparent; transition:all 0.15s; user-select:none; }
@@ -223,8 +224,16 @@ body.col-resizing * { cursor:col-resize !important; }
 <div class="dash-resizer" id="dashResizer"></div>
 
 <div class="controls" id="ctrlBar">
-  <label>検索:</label>
-  <input type="text" id="si" placeholder="商談名 / 取引先..." style="width:160px;" oninput="applyFilters()">
+  <label>取引先:</label>
+  <div class="ms-wrap" id="acctWrap">
+    <div class="ms-btn" id="acctBtn" onclick="document.getElementById('acctPanel').classList.toggle('open')">全て</div>
+    <div class="ms-panel" id="acctPanel"></div>
+  </div>
+  <label>商談名:</label>
+  <div class="ms-wrap" id="oppWrap">
+    <div class="ms-btn" id="oppBtn" onclick="document.getElementById('oppPanel').classList.toggle('open')">全て</div>
+    <div class="ms-panel" id="oppPanel"></div>
+  </div>
   <label>ステータス:</label>
   <div class="ms-wrap" id="sfWrap">
     <div class="ms-btn" id="sfBtn" onclick="document.getElementById('sfPanel').classList.toggle('open')">全て</div>
@@ -254,6 +263,11 @@ body.col-resizing * { cursor:col-resize !important; }
   <div class="ms-wrap" id="ctWrap">
     <div class="ms-btn" id="ctBtn" onclick="document.getElementById('ctPanel').classList.toggle('open')">全て</div>
     <div class="ms-panel" id="ctPanel"></div>
+  </div>
+  <label>営業:</label>
+  <div class="ms-wrap" id="ownerWrap">
+    <div class="ms-btn" id="ownerBtn" onclick="document.getElementById('ownerPanel').classList.toggle('open')">全て</div>
+    <div class="ms-panel" id="ownerPanel"></div>
   </div>
   <label>確度≧:</label>
   <input type="number" id="probMin" placeholder="%" min="0" max="100" style="width:50px;" oninput="applyFilters()">
@@ -377,10 +391,11 @@ function getNextEvent(r){
 
 // ===== Shared filter logic =====
 function getFilteredData(){
-  const si=document.getElementById('si').value.toLowerCase();
   const pfv=document.getElementById('pff').value;
   return D.filter(r=>{
-    if(si&&!r.Name.toLowerCase().includes(si)&&!(r.AccountName||'').toLowerCase().includes(si))return false;
+    if(selAccounts.size>0&&!selAccounts.has(r.AccountName||''))return false;
+    if(selOpps.size>0&&!selOpps.has(r.Name||''))return false;
+    if(selOwners.size>0&&!selOwners.has(r.OwnerName||''))return false;
     const s=r.StageName||'';
     if(selStages.size>0){let match=false;for(const st of selStages){if(s.startsWith(st)){match=true;break;}}if(!match)return false;}
     if(selAreas.size>0&&!selAreas.has(getArea(r.Prefecture||'')))return false;
@@ -602,11 +617,24 @@ function toggleCard(cardId){
 })();
 
 // ===== Filters =====
+function filterMsPanel(panelId,query){
+  const q=query.toLowerCase();
+  const labels=document.getElementById(panelId).querySelectorAll('label');
+  labels.forEach((lbl,i)=>{
+    if(i===0)return; // skip "全て" label
+    const text=lbl.textContent.toLowerCase();
+    lbl.style.display=text.includes(q)?'':'none';
+  });
+}
+
 function populateFilters(){
-  const prefSet=new Set(), ctSet=new Set(), areaSet=new Set();
+  const prefSet=new Set(), ctSet=new Set(), areaSet=new Set(), acctSet=new Set(), oppSet=new Set(), ownerSet=new Set();
   D.forEach(r=>{
     if(r.Prefecture){prefSet.add(r.Prefecture);areaSet.add(getArea(r.Prefecture));}
     if(r.ConstractType__c)ctSet.add(r.ConstractType__c);
+    if(r.AccountName)acctSet.add(r.AccountName);
+    if(r.Name)oppSet.add(r.Name);
+    if(r.OwnerName)ownerSet.add(r.OwnerName);
   });
   // Area multi-select
   const afPanel=document.getElementById('afPanel');
@@ -626,6 +654,39 @@ function populateFilters(){
   ctAllLbl.innerHTML='<input type="checkbox" id="ctypeAllChk" onchange="onCTypeAllChk()">全て';
   ctPanel.appendChild(ctAllLbl);
   [...ctSet].sort().forEach(c=>{const lbl=document.createElement('label');lbl.innerHTML='<input type="checkbox" value="'+c+'" onchange="onCTypeChk()">'+c;ctPanel.appendChild(lbl);});
+  // Account multi-select with search
+  const acctPanel=document.getElementById('acctPanel');
+  const acctSearch=document.createElement('input');
+  acctSearch.className='ms-search';acctSearch.placeholder='検索...';
+  acctSearch.oninput=function(){filterMsPanel('acctPanel',this.value);};
+  acctPanel.appendChild(acctSearch);
+  const acctAllLbl=document.createElement('label');
+  acctAllLbl.style.fontWeight='bold';acctAllLbl.style.borderBottom='1px solid #ddd';acctAllLbl.style.paddingBottom='4px';acctAllLbl.style.marginBottom='2px';
+  acctAllLbl.innerHTML='<input type="checkbox" id="acctAllChk" onchange="onAcctAllChk()">全て';
+  acctPanel.appendChild(acctAllLbl);
+  [...acctSet].sort().forEach(a=>{const lbl=document.createElement('label');lbl.innerHTML='<input type="checkbox" value="'+esc(a)+'" onchange="onAcctChk()">'+esc(a);acctPanel.appendChild(lbl);});
+  // Opportunity multi-select with search
+  const oppPanel=document.getElementById('oppPanel');
+  const oppSearch=document.createElement('input');
+  oppSearch.className='ms-search';oppSearch.placeholder='検索...';
+  oppSearch.oninput=function(){filterMsPanel('oppPanel',this.value);};
+  oppPanel.appendChild(oppSearch);
+  const oppAllLbl=document.createElement('label');
+  oppAllLbl.style.fontWeight='bold';oppAllLbl.style.borderBottom='1px solid #ddd';oppAllLbl.style.paddingBottom='4px';oppAllLbl.style.marginBottom='2px';
+  oppAllLbl.innerHTML='<input type="checkbox" id="oppAllChk" onchange="onOppAllChk()">全て';
+  oppPanel.appendChild(oppAllLbl);
+  [...oppSet].sort().forEach(a=>{const lbl=document.createElement('label');lbl.innerHTML='<input type="checkbox" value="'+esc(a)+'" onchange="onOppChk()">'+esc(a);oppPanel.appendChild(lbl);});
+  // Owner multi-select with search
+  const ownerPanel=document.getElementById('ownerPanel');
+  const ownerSearch=document.createElement('input');
+  ownerSearch.className='ms-search';ownerSearch.placeholder='検索...';
+  ownerSearch.oninput=function(){filterMsPanel('ownerPanel',this.value);};
+  ownerPanel.appendChild(ownerSearch);
+  const ownerAllLbl=document.createElement('label');
+  ownerAllLbl.style.fontWeight='bold';ownerAllLbl.style.borderBottom='1px solid #ddd';ownerAllLbl.style.paddingBottom='4px';ownerAllLbl.style.marginBottom='2px';
+  ownerAllLbl.innerHTML='<input type="checkbox" id="ownerAllChk" onchange="onOwnerAllChk()">全て';
+  ownerPanel.appendChild(ownerAllLbl);
+  [...ownerSet].sort().forEach(a=>{const lbl=document.createElement('label');lbl.innerHTML='<input type="checkbox" value="'+esc(a)+'" onchange="onOwnerChk()">'+esc(a);ownerPanel.appendChild(lbl);});
 }
 
 let sortCol='',sortDir='asc';
@@ -699,9 +760,71 @@ function onCTypeChk(){
   applyFilters();
 }
 
+// === Multi-select account filter ===
+let selAccounts=new Set();
+let selOpps=new Set();
+let selOwners=new Set();
+function onAcctAllChk(){
+  const allCb=document.getElementById('acctAllChk');
+  const cbs=document.querySelectorAll('#acctPanel input[type=checkbox]:not(#acctAllChk)');
+  cbs.forEach(cb=>{if(cb.closest('label').style.display!=='none')cb.checked=allCb.checked;});
+  onAcctChk();
+}
+function onAcctChk(){
+  const cbs=document.querySelectorAll('#acctPanel input[type=checkbox]:not(#acctAllChk)');
+  selAccounts.clear();
+  cbs.forEach(cb=>{if(cb.checked)selAccounts.add(cb.value);});
+  const allCb=document.getElementById('acctAllChk');
+  const visibleCbs=[...cbs].filter(cb=>cb.closest('label').style.display!=='none');
+  if(allCb) allCb.checked=(visibleCbs.length>0 && visibleCbs.every(cb=>cb.checked));
+  const btn=document.getElementById('acctBtn');
+  if(selAccounts.size===0) btn.textContent='全て';
+  else if(selAccounts.size<=2) btn.textContent=[...selAccounts].join(', ');
+  else btn.textContent=selAccounts.size+'件選択中';
+  applyFilters();
+}
+function onOppAllChk(){
+  const allCb=document.getElementById('oppAllChk');
+  const cbs=document.querySelectorAll('#oppPanel input[type=checkbox]:not(#oppAllChk)');
+  cbs.forEach(cb=>{if(cb.closest('label').style.display!=='none')cb.checked=allCb.checked;});
+  onOppChk();
+}
+function onOppChk(){
+  const cbs=document.querySelectorAll('#oppPanel input[type=checkbox]:not(#oppAllChk)');
+  selOpps.clear();
+  cbs.forEach(cb=>{if(cb.checked)selOpps.add(cb.value);});
+  const allCb=document.getElementById('oppAllChk');
+  const visibleCbs=[...cbs].filter(cb=>cb.closest('label').style.display!=='none');
+  if(allCb) allCb.checked=(visibleCbs.length>0 && visibleCbs.every(cb=>cb.checked));
+  const btn=document.getElementById('oppBtn');
+  if(selOpps.size===0) btn.textContent='全て';
+  else if(selOpps.size<=2) btn.textContent=[...selOpps].join(', ');
+  else btn.textContent=selOpps.size+'件選択中';
+  applyFilters();
+}
+function onOwnerAllChk(){
+  const allCb=document.getElementById('ownerAllChk');
+  const cbs=document.querySelectorAll('#ownerPanel input[type=checkbox]:not(#ownerAllChk)');
+  cbs.forEach(cb=>{if(cb.closest('label').style.display!=='none')cb.checked=allCb.checked;});
+  onOwnerChk();
+}
+function onOwnerChk(){
+  const cbs=document.querySelectorAll('#ownerPanel input[type=checkbox]:not(#ownerAllChk)');
+  selOwners.clear();
+  cbs.forEach(cb=>{if(cb.checked)selOwners.add(cb.value);});
+  const allCb=document.getElementById('ownerAllChk');
+  const visibleCbs=[...cbs].filter(cb=>cb.closest('label').style.display!=='none');
+  if(allCb) allCb.checked=(visibleCbs.length>0 && visibleCbs.every(cb=>cb.checked));
+  const btn=document.getElementById('ownerBtn');
+  if(selOwners.size===0) btn.textContent='全て';
+  else if(selOwners.size<=2) btn.textContent=[...selOwners].join(', ');
+  else btn.textContent=selOwners.size+'件選択中';
+  applyFilters();
+}
+
 // Close dropdowns on outside click
 document.addEventListener('click',e=>{
-  ['sfWrap','afWrap','ctWrap'].forEach(id=>{
+  ['sfWrap','afWrap','ctWrap','acctWrap','oppWrap','ownerWrap'].forEach(id=>{
     const w=document.getElementById(id);
     if(w&&!w.contains(e.target)){const p=w.querySelector('.ms-panel');if(p)p.classList.remove('open');}
   });
@@ -775,7 +898,9 @@ function getCurrentFilterState(){
     areas: [...selAreas],
     pref: document.getElementById('pff').value,
     ctype: [...selCTypes],
-    search: document.getElementById('si').value,
+    accounts: [...selAccounts],
+    opps: [...selOpps],
+    owners: [...selOwners],
     period: document.getElementById('pf').value,
     events: [...activeEvs],
     probMin: document.getElementById('probMin').value
@@ -814,7 +939,39 @@ function applyPreset(state){
   else if(selCTypes.size<=2) ctBtn.textContent=[...selCTypes].join(', ');
   else ctBtn.textContent=selCTypes.size+'件選択中';
 
-  document.getElementById('si').value=state.search||'';
+  selAccounts.clear();
+  (state.accounts||[]).forEach(v=>selAccounts.add(v));
+  document.querySelectorAll('#acctPanel input[type=checkbox]:not(#acctAllChk)').forEach(cb=>{cb.checked=selAccounts.has(cb.value);});
+  const acctAllCb=document.getElementById('acctAllChk');
+  const acctCbs=document.querySelectorAll('#acctPanel input[type=checkbox]:not(#acctAllChk)');
+  if(acctAllCb) acctAllCb.checked=(selAccounts.size===acctCbs.length && acctCbs.length>0);
+  const acctBtn2=document.getElementById('acctBtn');
+  if(selAccounts.size===0) acctBtn2.textContent='全て';
+  else if(selAccounts.size<=2) acctBtn2.textContent=[...selAccounts].join(', ');
+  else acctBtn2.textContent=selAccounts.size+'件選択中';
+
+  selOpps.clear();
+  (state.opps||[]).forEach(v=>selOpps.add(v));
+  document.querySelectorAll('#oppPanel input[type=checkbox]:not(#oppAllChk)').forEach(cb=>{cb.checked=selOpps.has(cb.value);});
+  const oppAllCb=document.getElementById('oppAllChk');
+  const oppCbs=document.querySelectorAll('#oppPanel input[type=checkbox]:not(#oppAllChk)');
+  if(oppAllCb) oppAllCb.checked=(selOpps.size===oppCbs.length && oppCbs.length>0);
+  const oppBtn2=document.getElementById('oppBtn');
+  if(selOpps.size===0) oppBtn2.textContent='全て';
+  else if(selOpps.size<=2) oppBtn2.textContent=[...selOpps].join(', ');
+  else oppBtn2.textContent=selOpps.size+'件選択中';
+
+  selOwners.clear();
+  (state.owners||[]).forEach(v=>selOwners.add(v));
+  document.querySelectorAll('#ownerPanel input[type=checkbox]:not(#ownerAllChk)').forEach(cb=>{cb.checked=selOwners.has(cb.value);});
+  const ownerAllCb=document.getElementById('ownerAllChk');
+  const ownerCbs=document.querySelectorAll('#ownerPanel input[type=checkbox]:not(#ownerAllChk)');
+  if(ownerAllCb) ownerAllCb.checked=(selOwners.size===ownerCbs.length && ownerCbs.length>0);
+  const ownerBtn2=document.getElementById('ownerBtn');
+  if(selOwners.size===0) ownerBtn2.textContent='全て';
+  else if(selOwners.size<=2) ownerBtn2.textContent=[...selOwners].join(', ');
+  else ownerBtn2.textContent=selOwners.size+'件選択中';
+
   document.getElementById('pf').value=state.period||'6';
   document.getElementById('probMin').value=state.probMin||'';
   activeEvs.clear();
@@ -1122,10 +1279,19 @@ function resetFilters(){
   while(pfSel.options.length>1) pfSel.remove(1);
   document.getElementById('afPanel').innerHTML='';
   document.getElementById('ctPanel').innerHTML='';
+  document.getElementById('acctPanel').innerHTML='';
+  document.getElementById('oppPanel').innerHTML='';
+  document.getElementById('ownerPanel').innerHTML='';
   selAreas.clear();
   document.getElementById('afBtn').textContent='全て';
   selCTypes.clear();
   document.getElementById('ctBtn').textContent='全て';
+  selAccounts.clear();
+  document.getElementById('acctBtn').textContent='全て';
+  selOpps.clear();
+  document.getElementById('oppBtn').textContent='全て';
+  selOwners.clear();
+  document.getElementById('ownerBtn').textContent='全て';
   document.getElementById('probMin').value='';
   colWidths=[...COL_DEFAULTS];
 }
