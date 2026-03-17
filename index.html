@@ -144,7 +144,7 @@ tr:hover .col-stage, tr:hover .col-koji, tr:hover .col-kojick, tr:hover .col-nex
 
 thead tr:first-child th { position:sticky; top:0; z-index:20; }
 thead tr:nth-child(2) th { position:sticky; top:26px; z-index:20; }
-thead tr:first-child th.col-name, thead tr:first-child th.col-pref, thead tr:first-child th.col-area, thead tr:first-child th.col-type,
+thead tr:first-child th.col-account, thead tr:first-child th.col-name, thead tr:first-child th.col-pref, thead tr:first-child th.col-area, thead tr:first-child th.col-type,
 thead tr:first-child th.col-prob, thead tr:first-child th.col-tmpsvy, thead tr:first-child th.col-survey, thead tr:first-child th.col-svyck,
 thead tr:first-child th.col-owner, thead tr:first-child th.col-const,
 thead tr:first-child th.col-stage, thead tr:first-child th.col-koji, thead tr:first-child th.col-kojick, thead tr:first-child th.col-next { z-index:40; box-shadow: 0 0 0 3px #e8eaf6; }
@@ -193,6 +193,23 @@ body.col-resizing * { cursor:col-resize !important; }
 .preset-btn.save:hover { background:#c8e6c9; }
 .preset-btn.del { background:#ffebee; color:#c62828; border-color:#ef9a9a; font-size:9px; padding:3px 5px; }
 .preset-btn.del:hover { background:#ffcdd2; }
+
+/* Column header filter dropdown */
+th .hf-icon { display:inline-block; font-size:8px; color:#999; margin-left:2px; cursor:pointer; vertical-align:middle; }
+th .hf-icon:hover { color:#1a237e; }
+th .hf-icon.active { color:#1a237e; font-weight:bold; }
+.hf-panel { position:fixed; background:#fff; border:1px solid #ccc; border-radius:4px; box-shadow:0 4px 12px rgba(0,0,0,0.2); z-index:500; min-width:160px; max-height:300px; overflow-y:auto; display:none; padding:6px 0; font-weight:normal; }
+.hf-panel.open { display:block; }
+.hf-panel label { display:flex; align-items:center; gap:6px; padding:4px 10px; font-size:11px; font-weight:normal; cursor:pointer; white-space:nowrap; }
+.hf-panel label:hover { background:#e8eaf6; }
+.hf-panel .hf-search { display:block; width:calc(100% - 12px); margin:4px 6px; padding:3px 6px; font-size:11px; border:1px solid #ccc; border-radius:3px; }
+.hf-panel .hf-search:focus { outline:none; border-color:#5c6bc0; }
+.hf-panel .hf-sep { border:none; border-top:1px solid #e0e0e0; margin:3px 0; }
+.hf-panel .hf-num { display:block; width:calc(100% - 12px); margin:4px 6px; padding:3px 6px; font-size:11px; border:1px solid #ccc; border-radius:3px; }
+.hf-panel.hf-wide { min-width:260px; max-height:350px; }
+/* Remove sort arrow from th when using header filters (sort arrow handled via span) */
+th.hf-th::after { content:'' !important; }
+th.hf-th .sort-arrow { font-size:9px; }
 </style>
 <!-- Firebase SDKs for Firestore shared presets -->
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -224,53 +241,6 @@ body.col-resizing * { cursor:col-resize !important; }
 <div class="dash-resizer" id="dashResizer"></div>
 
 <div class="controls" id="ctrlBar">
-  <label>取引先:</label>
-  <div class="ms-wrap" id="acctWrap">
-    <div class="ms-btn" id="acctBtn" onclick="document.getElementById('acctPanel').classList.toggle('open')">全て</div>
-    <div class="ms-panel" id="acctPanel"></div>
-  </div>
-  <label>商談名:</label>
-  <div class="ms-wrap" id="oppWrap">
-    <div class="ms-btn" id="oppBtn" onclick="document.getElementById('oppPanel').classList.toggle('open')">全て</div>
-    <div class="ms-panel" id="oppPanel"></div>
-  </div>
-  <label>ステータス:</label>
-  <div class="ms-wrap" id="sfWrap">
-    <div class="ms-btn" id="sfBtn" onclick="document.getElementById('sfPanel').classList.toggle('open')">全て</div>
-    <div class="ms-panel" id="sfPanel">
-      <label><input type="checkbox" id="stageAllChk" onchange="onStageAllChk()">全て</label>
-      <hr>
-      <label><input type="checkbox" value="00" onchange="onStageChk()">00_潜在案件</label>
-      <label><input type="checkbox" value="01" onchange="onStageChk()">01_見極め</label>
-      <label><input type="checkbox" value="02" onchange="onStageChk()">02_メリット訴求</label>
-      <label><input type="checkbox" value="03" onchange="onStageChk()">03_提案実施</label>
-      <label><input type="checkbox" value="04" onchange="onStageChk()">04_意思決定者の賛同</label>
-      <label><input type="checkbox" value="05" onchange="onStageChk()">05_リスク排除</label>
-      <label><input type="checkbox" value="06" onchange="onStageChk()">06_内示</label>
-      <label><input type="checkbox" value="07" onchange="onStageChk()">07_契約締結</label>
-      <label><input type="checkbox" value="08" onchange="onStageChk()">08_施工中</label>
-      <label><input type="checkbox" value="09" onchange="onStageChk()">09_完工検査</label>
-    </div>
-  </div>
-  <label>エリア:</label>
-  <div class="ms-wrap" id="afWrap">
-    <div class="ms-btn" id="afBtn" onclick="document.getElementById('afPanel').classList.toggle('open')">全て</div>
-    <div class="ms-panel" id="afPanel"></div>
-  </div>
-  <label>都道府県:</label>
-  <select id="pff" onchange="applyFilters()"><option value="all" selected>全て</option></select>
-  <label>事業区分:</label>
-  <div class="ms-wrap" id="ctWrap">
-    <div class="ms-btn" id="ctBtn" onclick="document.getElementById('ctPanel').classList.toggle('open')">全て</div>
-    <div class="ms-panel" id="ctPanel"></div>
-  </div>
-  <label>営業:</label>
-  <div class="ms-wrap" id="ownerWrap">
-    <div class="ms-btn" id="ownerBtn" onclick="document.getElementById('ownerPanel').classList.toggle('open')">全て</div>
-    <div class="ms-panel" id="ownerPanel"></div>
-  </div>
-  <label>確度≧:</label>
-  <input type="number" id="probMin" placeholder="%" min="0" max="100" style="width:50px;" oninput="applyFilters()">
   <label>期間:</label>
   <select id="pf" onchange="applyFilters()">
     <option value="3">3ヶ月</option><option value="6" selected>6ヶ月</option>
@@ -391,7 +361,6 @@ function getNextEvent(r){
 
 // ===== Shared filter logic =====
 function getFilteredData(){
-  const pfv=document.getElementById('pff').value;
   return D.filter(r=>{
     if(selAccounts.size>0&&!selAccounts.has(r.AccountName||''))return false;
     if(selOpps.size>0&&!selOpps.has(r.Name||''))return false;
@@ -399,11 +368,23 @@ function getFilteredData(){
     const s=r.StageName||'';
     if(selStages.size>0){let match=false;for(const st of selStages){if(s.startsWith(st)){match=true;break;}}if(!match)return false;}
     if(selAreas.size>0&&!selAreas.has(getArea(r.Prefecture||'')))return false;
-    if(pfv!=='all'&&(r.Prefecture||'')!==pfv)return false;
+    if(selPrefs.size>0&&!selPrefs.has(r.Prefecture||''))return false;
     if(selCTypes.size>0&&!selCTypes.has(r.ConstractType__c||''))return false;
+    if(selConsts.size>0&&!selConsts.has(r.ConstUserName||''))return false;
     if(activeEvs.size>0&&!hasActiveEvent(r))return false;
-    const probMinVal=parseInt(document.getElementById('probMin').value);
-    if(!isNaN(probMinVal)&&(r.Probability__c==null||r.Probability__c<probMinVal))return false;
+    if(!isNaN(probMinVal)&&probMinVal>0&&(r.Probability__c==null||r.Probability__c<probMinVal))return false;
+    // Date filters
+    if(filterTmpSvyDate==='set'&&!r.TempSurveyDate__c)return false;
+    if(filterTmpSvyDate==='unset'&&r.TempSurveyDate__c)return false;
+    if(filterSvyDate==='set'&&!r.SurveyDate__c)return false;
+    if(filterSvyDate==='unset'&&r.SurveyDate__c)return false;
+    if(filterKojiDate==='set'&&!r.KojiSekouyoteibi__c)return false;
+    if(filterKojiDate==='unset'&&r.KojiSekouyoteibi__c)return false;
+    // Boolean filters
+    if(filterSvyCk==='confirmed'&&!(r.SurveyKakutei__c===true||r.SurveyKakutei__c==='true'))return false;
+    if(filterSvyCk==='unconfirmed'&&(r.SurveyKakutei__c===true||r.SurveyKakutei__c==='true'))return false;
+    if(filterKojiCk==='confirmed'&&!(r.KojiSekouKakuteibi__c===true||r.KojiSekouKakuteibi__c==='true'))return false;
+    if(filterKojiCk==='unconfirmed'&&(r.KojiSekouKakuteibi__c===true||r.KojiSekouKakuteibi__c==='true'))return false;
     return true;
   });
 }
@@ -617,76 +598,222 @@ function toggleCard(cardId){
 })();
 
 // ===== Filters =====
-function filterMsPanel(panelId,query){
+// New filter state for header-based filters
+let filterSvyDate='all';   // 'all'|'set'|'unset'
+let filterSvyCk='all';     // 'all'|'confirmed'|'unconfirmed'
+let filterKojiDate='all';  // 'all'|'set'|'unset'
+let filterKojiCk='all';    // 'all'|'confirmed'|'unconfirmed'
+let filterTmpSvyDate='all';// 'all'|'set'|'unset'
+let selConsts=new Set();
+let selPrefs=new Set();
+
+let filterValues = {};
+function collectFilterValues(){
+  const acctSet=new Set(), oppSet=new Set(), ownerSet=new Set(), constSet=new Set(), prefSet=new Set(), areaSet=new Set(), ctypeSet=new Set();
+  D.forEach(r=>{
+    if(r.AccountName) acctSet.add(r.AccountName);
+    if(r.Name) oppSet.add(r.Name);
+    if(r.OwnerName) ownerSet.add(r.OwnerName);
+    if(r.ConstUserName) constSet.add(r.ConstUserName);
+    if(r.Prefecture){prefSet.add(r.Prefecture); areaSet.add(getArea(r.Prefecture));}
+    if(r.ConstractType__c) ctypeSet.add(r.ConstractType__c);
+  });
+  filterValues = {
+    account:[...acctSet].sort(), name:[...oppSet].sort(), owner:[...ownerSet].sort(),
+    'const':[...constSet].sort(), pref:[...prefSet].sort(),
+    area:['北海道','東北','関東','北陸','中部','関西','中国','四国','九州'].filter(a=>areaSet.has(a)),
+    type:[...ctypeSet].sort(),
+    stage:['00_潜在案件','01_見極め','02_メリット訴求','03_提案実施','04_意思決定者の賛同','05_リスク排除','06_内示','07_契約締結','08_施工中','09_完工検査']
+  };
+}
+
+function populateFilters(){
+  collectFilterValues();
+}
+
+// Header filter column type map
+const hfColType={
+  account:'multiselect', name:'multiselect', pref:'multiselect', area:'multiselect',
+  type:'multiselect', prob:'number', tmpsvy:'date', survey:'date', svyck:'boolean',
+  owner:'multiselect', 'const':'multiselect', stage:'multiselect', koji:'date', kojick:'boolean'
+};
+// Which multi-select columns have search
+const hfSearchCols=new Set(['account','name','owner','const']);
+// Which multi-select columns are wide
+const hfWideCols=new Set(['account','name','stage']);
+
+function getSetForCol(colKey){
+  if(colKey==='account') return selAccounts;
+  if(colKey==='name') return selOpps;
+  if(colKey==='pref') return selPrefs;
+  if(colKey==='area') return selAreas;
+  if(colKey==='type') return selCTypes;
+  if(colKey==='owner') return selOwners;
+  if(colKey==='const') return selConsts;
+  if(colKey==='stage') return selStages;
+  return null;
+}
+
+function isFilterActive(colKey){
+  const t=hfColType[colKey];
+  if(!t) return false;
+  if(t==='multiselect'){
+    const s=getSetForCol(colKey);
+    return s && s.size>0;
+  }
+  if(t==='number'){
+    const v=probMinVal;
+    return !isNaN(v) && v>0;
+  }
+  if(t==='date'){
+    if(colKey==='tmpsvy') return filterTmpSvyDate!=='all';
+    if(colKey==='survey') return filterSvyDate!=='all';
+    if(colKey==='koji') return filterKojiDate!=='all';
+  }
+  if(t==='boolean'){
+    if(colKey==='svyck') return filterSvyCk!=='all';
+    if(colKey==='kojick') return filterKojiCk!=='all';
+  }
+  return false;
+}
+let probMinVal=NaN;
+
+function buildFilterPanel(colKey){
+  const t=hfColType[colKey];
+  if(!t) return '';
+  const wide=hfWideCols.has(colKey)?' hf-wide':'';
+  let h='<div class="hf-panel'+wide+'" id="hfp-'+colKey+'">';
+
+  if(t==='multiselect'){
+    const selSet=getSetForCol(colKey);
+    const vals=filterValues[colKey]||[];
+    const hasSearch=hfSearchCols.has(colKey);
+    if(hasSearch){
+      h+='<input class="hf-search" placeholder="検索..." oninput="filterHfPanel(\''+colKey+'\',this.value)">';
+    }
+    // For stage, use prefix matching
+    const isStage=(colKey==='stage');
+    const allChecked=selSet.size===0;
+    h+='<label><input type="checkbox" data-hf-all="'+colKey+'"'+(allChecked?' checked':'')+' onchange="onHfAllChk(\''+colKey+'\')">全て</label>';
+    h+='<hr class="hf-sep">';
+    vals.forEach(v=>{
+      let checked=false;
+      if(isStage){
+        const prefix=v.substring(0,2);
+        checked=selSet.has(prefix);
+      } else {
+        checked=selSet.has(v);
+      }
+      h+='<label><input type="checkbox" value="'+esc(v)+'"'+(checked?' checked':'')+' onchange="onHfChk(\''+colKey+'\')">'+esc(v)+'</label>';
+    });
+  } else if(t==='number'){
+    h+='<label style="padding:4px 10px;font-size:11px;">≧ <input type="number" class="hf-num" id="hfProbMin" placeholder="%" min="0" max="100" value="'+(!isNaN(probMinVal)?probMinVal:'')+'" oninput="onHfProbChange(this.value)"> %</label>';
+  } else if(t==='date'){
+    const cur=(colKey==='tmpsvy'?filterTmpSvyDate:colKey==='survey'?filterSvyDate:filterKojiDate);
+    h+='<label><input type="radio" name="hf-'+colKey+'" value="all"'+(cur==='all'?' checked':'')+' onchange="onHfRadio(\''+colKey+'\',\'all\')">全て</label>';
+    h+='<label><input type="radio" name="hf-'+colKey+'" value="set"'+(cur==='set'?' checked':'')+' onchange="onHfRadio(\''+colKey+'\',\'set\')">設定あり</label>';
+    h+='<label><input type="radio" name="hf-'+colKey+'" value="unset"'+(cur==='unset'?' checked':'')+' onchange="onHfRadio(\''+colKey+'\',\'unset\')">未設定</label>';
+  } else if(t==='boolean'){
+    const cur=(colKey==='svyck'?filterSvyCk:filterKojiCk);
+    h+='<label><input type="radio" name="hf-'+colKey+'" value="all"'+(cur==='all'?' checked':'')+' onchange="onHfRadio(\''+colKey+'\',\'all\')">全て</label>';
+    h+='<label><input type="radio" name="hf-'+colKey+'" value="confirmed"'+(cur==='confirmed'?' checked':'')+' onchange="onHfRadio(\''+colKey+'\',\'confirmed\')">確定</label>';
+    h+='<label><input type="radio" name="hf-'+colKey+'" value="unconfirmed"'+(cur==='unconfirmed'?' checked':'')+' onchange="onHfRadio(\''+colKey+'\',\'unconfirmed\')">未確定</label>';
+  }
+
+  h+='</div>';
+  return h;
+}
+
+function toggleHfPanel(colKey,evt){
+  // Close all other open panels
+  document.querySelectorAll('.hf-panel.open').forEach(p=>{
+    if(p.id!=='hfp-'+colKey) p.classList.remove('open');
+  });
+  const panel=document.getElementById('hfp-'+colKey);
+  if(!panel) return;
+  const wasOpen=panel.classList.contains('open');
+  panel.classList.toggle('open');
+  if(!wasOpen && evt){
+    // Position panel below the icon using fixed positioning
+    const icon=evt.target.closest('.hf-icon')||evt.target;
+    const rect=icon.getBoundingClientRect();
+    panel.style.top=(rect.bottom+2)+'px';
+    panel.style.left=Math.max(0,rect.left-40)+'px';
+    // Ensure panel doesn't go off-screen right
+    requestAnimationFrame(()=>{
+      const pr=panel.getBoundingClientRect();
+      if(pr.right>window.innerWidth) panel.style.left=(window.innerWidth-pr.width-8)+'px';
+    });
+  }
+}
+
+function filterHfPanel(colKey,query){
   const q=query.toLowerCase();
-  const labels=document.getElementById(panelId).querySelectorAll('label');
+  const panel=document.getElementById('hfp-'+colKey);
+  if(!panel) return;
+  const labels=panel.querySelectorAll('label');
   labels.forEach((lbl,i)=>{
-    if(i===0)return; // skip "全て" label
+    if(i===0) return; // skip "全て"
     const text=lbl.textContent.toLowerCase();
     lbl.style.display=text.includes(q)?'':'none';
   });
 }
 
-function populateFilters(){
-  const prefSet=new Set(), ctSet=new Set(), areaSet=new Set(), acctSet=new Set(), oppSet=new Set(), ownerSet=new Set();
-  D.forEach(r=>{
-    if(r.Prefecture){prefSet.add(r.Prefecture);areaSet.add(getArea(r.Prefecture));}
-    if(r.ConstractType__c)ctSet.add(r.ConstractType__c);
-    if(r.AccountName)acctSet.add(r.AccountName);
-    if(r.Name)oppSet.add(r.Name);
-    if(r.OwnerName)ownerSet.add(r.OwnerName);
+function onHfAllChk(colKey){
+  const panel=document.getElementById('hfp-'+colKey);
+  if(!panel) return;
+  const allCb=panel.querySelector('[data-hf-all]');
+  const cbs=panel.querySelectorAll('input[type=checkbox]:not([data-hf-all])');
+  cbs.forEach(cb=>{
+    if(cb.closest('label').style.display!=='none') cb.checked=allCb.checked;
   });
-  // Area multi-select
-  const afPanel=document.getElementById('afPanel');
-  const areaOrder=['北海道','東北','関東','北陸','中部','関西','中国','四国','九州'];
-  const allLbl=document.createElement('label');
-  allLbl.style.fontWeight='bold';allLbl.style.borderBottom='1px solid #ddd';allLbl.style.paddingBottom='4px';allLbl.style.marginBottom='2px';
-  allLbl.innerHTML='<input type="checkbox" id="areaAllChk" onchange="onAreaAllChk()">全て';
-  afPanel.appendChild(allLbl);
-  areaOrder.forEach(a=>{if(areaSet.has(a)){const lbl=document.createElement('label');lbl.innerHTML='<input type="checkbox" value="'+a+'" onchange="onAreaChk()">'+a;afPanel.appendChild(lbl);}});
-  // Prefecture
-  const pfSel=document.getElementById('pff');
-  [...prefSet].sort().forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;pfSel.appendChild(o);});
-  // Business type with '全て' toggle
-  const ctPanel=document.getElementById('ctPanel');
-  const ctAllLbl=document.createElement('label');
-  ctAllLbl.style.fontWeight='bold';ctAllLbl.style.borderBottom='1px solid #ddd';ctAllLbl.style.paddingBottom='4px';ctAllLbl.style.marginBottom='2px';
-  ctAllLbl.innerHTML='<input type="checkbox" id="ctypeAllChk" onchange="onCTypeAllChk()">全て';
-  ctPanel.appendChild(ctAllLbl);
-  [...ctSet].sort().forEach(c=>{const lbl=document.createElement('label');lbl.innerHTML='<input type="checkbox" value="'+c+'" onchange="onCTypeChk()">'+c;ctPanel.appendChild(lbl);});
-  // Account multi-select with search
-  const acctPanel=document.getElementById('acctPanel');
-  const acctSearch=document.createElement('input');
-  acctSearch.className='ms-search';acctSearch.placeholder='検索...';
-  acctSearch.oninput=function(){filterMsPanel('acctPanel',this.value);};
-  acctPanel.appendChild(acctSearch);
-  const acctAllLbl=document.createElement('label');
-  acctAllLbl.style.fontWeight='bold';acctAllLbl.style.borderBottom='1px solid #ddd';acctAllLbl.style.paddingBottom='4px';acctAllLbl.style.marginBottom='2px';
-  acctAllLbl.innerHTML='<input type="checkbox" id="acctAllChk" onchange="onAcctAllChk()">全て';
-  acctPanel.appendChild(acctAllLbl);
-  [...acctSet].sort().forEach(a=>{const lbl=document.createElement('label');lbl.innerHTML='<input type="checkbox" value="'+esc(a)+'" onchange="onAcctChk()">'+esc(a);acctPanel.appendChild(lbl);});
-  // Opportunity multi-select with search
-  const oppPanel=document.getElementById('oppPanel');
-  const oppSearch=document.createElement('input');
-  oppSearch.className='ms-search';oppSearch.placeholder='検索...';
-  oppSearch.oninput=function(){filterMsPanel('oppPanel',this.value);};
-  oppPanel.appendChild(oppSearch);
-  const oppAllLbl=document.createElement('label');
-  oppAllLbl.style.fontWeight='bold';oppAllLbl.style.borderBottom='1px solid #ddd';oppAllLbl.style.paddingBottom='4px';oppAllLbl.style.marginBottom='2px';
-  oppAllLbl.innerHTML='<input type="checkbox" id="oppAllChk" onchange="onOppAllChk()">全て';
-  oppPanel.appendChild(oppAllLbl);
-  [...oppSet].sort().forEach(a=>{const lbl=document.createElement('label');lbl.innerHTML='<input type="checkbox" value="'+esc(a)+'" onchange="onOppChk()">'+esc(a);oppPanel.appendChild(lbl);});
-  // Owner multi-select with search
-  const ownerPanel=document.getElementById('ownerPanel');
-  const ownerSearch=document.createElement('input');
-  ownerSearch.className='ms-search';ownerSearch.placeholder='検索...';
-  ownerSearch.oninput=function(){filterMsPanel('ownerPanel',this.value);};
-  ownerPanel.appendChild(ownerSearch);
-  const ownerAllLbl=document.createElement('label');
-  ownerAllLbl.style.fontWeight='bold';ownerAllLbl.style.borderBottom='1px solid #ddd';ownerAllLbl.style.paddingBottom='4px';ownerAllLbl.style.marginBottom='2px';
-  ownerAllLbl.innerHTML='<input type="checkbox" id="ownerAllChk" onchange="onOwnerAllChk()">全て';
-  ownerPanel.appendChild(ownerAllLbl);
-  [...ownerSet].sort().forEach(a=>{const lbl=document.createElement('label');lbl.innerHTML='<input type="checkbox" value="'+esc(a)+'" onchange="onOwnerChk()">'+esc(a);ownerPanel.appendChild(lbl);});
+  onHfChk(colKey);
+}
+
+function onHfChk(colKey){
+  const panel=document.getElementById('hfp-'+colKey);
+  if(!panel) return;
+  const selSet=getSetForCol(colKey);
+  if(!selSet) return;
+  const isStage=(colKey==='stage');
+  const cbs=panel.querySelectorAll('input[type=checkbox]:not([data-hf-all])');
+  selSet.clear();
+  cbs.forEach(cb=>{
+    if(cb.checked){
+      if(isStage){
+        selSet.add(cb.value.substring(0,2));
+      } else {
+        selSet.add(cb.value);
+      }
+    }
+  });
+  // Update "all" checkbox state
+  const allCb=panel.querySelector('[data-hf-all]');
+  const visibleCbs=[...cbs].filter(cb=>cb.closest('label').style.display!=='none');
+  if(allCb){
+    if(selSet.size===0) allCb.checked=true;
+    else allCb.checked=(visibleCbs.length>0 && visibleCbs.every(cb=>cb.checked));
+  }
+  // If all checked, treat as no filter
+  if(isStage && selSet.size===cbs.length) selSet.clear();
+  else if(!isStage && selSet.size===cbs.length) selSet.clear();
+  // Update allCb after clearing
+  if(selSet.size===0 && allCb) allCb.checked=true;
+  applyFilters();
+}
+
+function onHfRadio(colKey,value){
+  if(colKey==='tmpsvy') filterTmpSvyDate=value;
+  else if(colKey==='survey') filterSvyDate=value;
+  else if(colKey==='koji') filterKojiDate=value;
+  else if(colKey==='svyck') filterSvyCk=value;
+  else if(colKey==='kojick') filterKojiCk=value;
+  applyFilters();
+}
+
+function onHfProbChange(val){
+  probMinVal=parseInt(val);
+  applyFilters();
 }
 
 let sortCol='',sortDir='asc';
@@ -696,138 +823,19 @@ function toggleSort(col){
   render();
 }
 
-// === Multi-select stage filter ===
+// === Filter state sets ===
 let selStages=new Set();
-function onStageAllChk(){
-  const allCb=document.getElementById('stageAllChk');
-  const cbs=document.querySelectorAll('#sfPanel input[type=checkbox]:not(#stageAllChk)');
-  cbs.forEach(cb=>{cb.checked=allCb.checked;});
-  onStageChk();
-}
-function onStageChk(){
-  const cbs=document.querySelectorAll('#sfPanel input[type=checkbox]:not(#stageAllChk)');
-  selStages.clear();
-  cbs.forEach(cb=>{if(cb.checked)selStages.add(cb.value);});
-  const allCb=document.getElementById('stageAllChk');
-  if(allCb) allCb.checked=(selStages.size===cbs.length && cbs.length>0);
-  const btn=document.getElementById('sfBtn');
-  if(selStages.size===0) btn.textContent='全て';
-  else if(selStages.size<=3) btn.textContent=[...selStages].map(v=>v+'_').join(', ').replace(/_,/g,', ').replace(/_$/,'');
-  else btn.textContent=selStages.size+'件選択中';
-  applyFilters();
-}
-
-// === Multi-select area filter ===
 let selAreas=new Set();
-function onAreaAllChk(){
-  const allCb=document.getElementById('areaAllChk');
-  const cbs=document.querySelectorAll('#afPanel input[type=checkbox]:not(#areaAllChk)');
-  cbs.forEach(cb=>{cb.checked=allCb.checked;});
-  onAreaChk();
-}
-function onAreaChk(){
-  const cbs=document.querySelectorAll('#afPanel input[type=checkbox]:not(#areaAllChk)');
-  selAreas.clear();
-  cbs.forEach(cb=>{if(cb.checked)selAreas.add(cb.value);});
-  // sync allChk state
-  const allCb=document.getElementById('areaAllChk');
-  if(allCb) allCb.checked=(selAreas.size===cbs.length && cbs.length>0);
-  const btn=document.getElementById('afBtn');
-  if(selAreas.size===0) btn.textContent='全て';
-  else if(selAreas.size<=3) btn.textContent=[...selAreas].join(', ');
-  else btn.textContent=selAreas.size+'件選択中';
-  applyFilters();
-}
-
-// === Multi-select business type filter ===
 let selCTypes=new Set();
-function onCTypeAllChk(){
-  const allCb=document.getElementById('ctypeAllChk');
-  const cbs=document.querySelectorAll('#ctPanel input[type=checkbox]:not(#ctypeAllChk)');
-  cbs.forEach(cb=>{cb.checked=allCb.checked;});
-  onCTypeChk();
-}
-function onCTypeChk(){
-  const cbs=document.querySelectorAll('#ctPanel input[type=checkbox]:not(#ctypeAllChk)');
-  selCTypes.clear();
-  cbs.forEach(cb=>{if(cb.checked)selCTypes.add(cb.value);});
-  const allCb=document.getElementById('ctypeAllChk');
-  if(allCb) allCb.checked=(selCTypes.size===cbs.length && cbs.length>0);
-  const btn=document.getElementById('ctBtn');
-  if(selCTypes.size===0) btn.textContent='全て';
-  else if(selCTypes.size<=2) btn.textContent=[...selCTypes].join(', ');
-  else btn.textContent=selCTypes.size+'件選択中';
-  applyFilters();
-}
-
-// === Multi-select account filter ===
 let selAccounts=new Set();
 let selOpps=new Set();
 let selOwners=new Set();
-function onAcctAllChk(){
-  const allCb=document.getElementById('acctAllChk');
-  const cbs=document.querySelectorAll('#acctPanel input[type=checkbox]:not(#acctAllChk)');
-  cbs.forEach(cb=>{if(cb.closest('label').style.display!=='none')cb.checked=allCb.checked;});
-  onAcctChk();
-}
-function onAcctChk(){
-  const cbs=document.querySelectorAll('#acctPanel input[type=checkbox]:not(#acctAllChk)');
-  selAccounts.clear();
-  cbs.forEach(cb=>{if(cb.checked)selAccounts.add(cb.value);});
-  const allCb=document.getElementById('acctAllChk');
-  const visibleCbs=[...cbs].filter(cb=>cb.closest('label').style.display!=='none');
-  if(allCb) allCb.checked=(visibleCbs.length>0 && visibleCbs.every(cb=>cb.checked));
-  const btn=document.getElementById('acctBtn');
-  if(selAccounts.size===0) btn.textContent='全て';
-  else if(selAccounts.size<=2) btn.textContent=[...selAccounts].join(', ');
-  else btn.textContent=selAccounts.size+'件選択中';
-  applyFilters();
-}
-function onOppAllChk(){
-  const allCb=document.getElementById('oppAllChk');
-  const cbs=document.querySelectorAll('#oppPanel input[type=checkbox]:not(#oppAllChk)');
-  cbs.forEach(cb=>{if(cb.closest('label').style.display!=='none')cb.checked=allCb.checked;});
-  onOppChk();
-}
-function onOppChk(){
-  const cbs=document.querySelectorAll('#oppPanel input[type=checkbox]:not(#oppAllChk)');
-  selOpps.clear();
-  cbs.forEach(cb=>{if(cb.checked)selOpps.add(cb.value);});
-  const allCb=document.getElementById('oppAllChk');
-  const visibleCbs=[...cbs].filter(cb=>cb.closest('label').style.display!=='none');
-  if(allCb) allCb.checked=(visibleCbs.length>0 && visibleCbs.every(cb=>cb.checked));
-  const btn=document.getElementById('oppBtn');
-  if(selOpps.size===0) btn.textContent='全て';
-  else if(selOpps.size<=2) btn.textContent=[...selOpps].join(', ');
-  else btn.textContent=selOpps.size+'件選択中';
-  applyFilters();
-}
-function onOwnerAllChk(){
-  const allCb=document.getElementById('ownerAllChk');
-  const cbs=document.querySelectorAll('#ownerPanel input[type=checkbox]:not(#ownerAllChk)');
-  cbs.forEach(cb=>{if(cb.closest('label').style.display!=='none')cb.checked=allCb.checked;});
-  onOwnerChk();
-}
-function onOwnerChk(){
-  const cbs=document.querySelectorAll('#ownerPanel input[type=checkbox]:not(#ownerAllChk)');
-  selOwners.clear();
-  cbs.forEach(cb=>{if(cb.checked)selOwners.add(cb.value);});
-  const allCb=document.getElementById('ownerAllChk');
-  const visibleCbs=[...cbs].filter(cb=>cb.closest('label').style.display!=='none');
-  if(allCb) allCb.checked=(visibleCbs.length>0 && visibleCbs.every(cb=>cb.checked));
-  const btn=document.getElementById('ownerBtn');
-  if(selOwners.size===0) btn.textContent='全て';
-  else if(selOwners.size<=2) btn.textContent=[...selOwners].join(', ');
-  else btn.textContent=selOwners.size+'件選択中';
-  applyFilters();
-}
 
-// Close dropdowns on outside click
+// Close header filter dropdowns on outside click
 document.addEventListener('click',e=>{
-  ['sfWrap','afWrap','ctWrap','acctWrap','oppWrap','ownerWrap'].forEach(id=>{
-    const w=document.getElementById(id);
-    if(w&&!w.contains(e.target)){const p=w.querySelector('.ms-panel');if(p)p.classList.remove('open');}
-  });
+  if(!e.target.closest('.hf-panel') && !e.target.classList.contains('hf-icon')){
+    document.querySelectorAll('.hf-panel.open').forEach(p=>p.classList.remove('open'));
+  }
 });
 
 // === Event type legend filter ===
@@ -896,84 +904,55 @@ function getCurrentFilterState(){
   return {
     stages: [...selStages],
     areas: [...selAreas],
-    pref: document.getElementById('pff').value,
+    prefs: [...selPrefs],
     ctype: [...selCTypes],
     accounts: [...selAccounts],
     opps: [...selOpps],
     owners: [...selOwners],
+    consts: [...selConsts],
     period: document.getElementById('pf').value,
     events: [...activeEvs],
-    probMin: document.getElementById('probMin').value
+    probMin: !isNaN(probMinVal)?String(probMinVal):'',
+    filterTmpSvyDate: filterTmpSvyDate,
+    filterSvyDate: filterSvyDate,
+    filterSvyCk: filterSvyCk,
+    filterKojiDate: filterKojiDate,
+    filterKojiCk: filterKojiCk
   };
 }
 
 function applyPreset(state){
+  // Restore Set-based filters
   selStages.clear();
   (state.stages||[]).forEach(v=>selStages.add(v));
-  document.querySelectorAll('#sfPanel input[type=checkbox]:not(#stageAllChk)').forEach(cb=>{cb.checked=selStages.has(cb.value);});
-  const stageAllCb=document.getElementById('stageAllChk');
-  const stageCbs=document.querySelectorAll('#sfPanel input[type=checkbox]:not(#stageAllChk)');
-  if(stageAllCb) stageAllCb.checked=(selStages.size===stageCbs.length && stageCbs.length>0);
-  const sfBtn=document.getElementById('sfBtn');
-  if(selStages.size===0) sfBtn.textContent='全て';
-  else if(selStages.size<=3) sfBtn.textContent=[...selStages].map(v=>v+'_').join(', ').replace(/_,/g,', ').replace(/_$/,'');
-  else sfBtn.textContent=selStages.size+'件選択中';
-
   selAreas.clear();
   (state.areas||[]).forEach(v=>selAreas.add(v));
-  document.querySelectorAll('#afPanel input[type=checkbox]').forEach(cb=>{cb.checked=selAreas.has(cb.value);});
-  const afBtn=document.getElementById('afBtn');
-  if(selAreas.size===0) afBtn.textContent='全て';
-  else if(selAreas.size<=3) afBtn.textContent=[...selAreas].join(', ');
-  else afBtn.textContent=selAreas.size+'件選択中';
-
-  document.getElementById('pff').value=state.pref||'all';
+  selPrefs.clear();
+  (state.prefs||[]).forEach(v=>selPrefs.add(v));
+  // Backward compat: old presets may have single pref
+  if(!state.prefs && state.pref && state.pref!=='all'){ selPrefs.add(state.pref); }
   selCTypes.clear();
   (state.ctype||[]).forEach(v=>selCTypes.add(v));
-  document.querySelectorAll('#ctPanel input[type=checkbox]:not(#ctypeAllChk)').forEach(cb=>{cb.checked=selCTypes.has(cb.value);});
-  const ctypeAllCb=document.getElementById('ctypeAllChk');
-  const ctypeCbs=document.querySelectorAll('#ctPanel input[type=checkbox]:not(#ctypeAllChk)');
-  if(ctypeAllCb) ctypeAllCb.checked=(selCTypes.size===ctypeCbs.length && ctypeCbs.length>0);
-  const ctBtn=document.getElementById('ctBtn');
-  if(selCTypes.size===0) ctBtn.textContent='全て';
-  else if(selCTypes.size<=2) ctBtn.textContent=[...selCTypes].join(', ');
-  else ctBtn.textContent=selCTypes.size+'件選択中';
-
   selAccounts.clear();
   (state.accounts||[]).forEach(v=>selAccounts.add(v));
-  document.querySelectorAll('#acctPanel input[type=checkbox]:not(#acctAllChk)').forEach(cb=>{cb.checked=selAccounts.has(cb.value);});
-  const acctAllCb=document.getElementById('acctAllChk');
-  const acctCbs=document.querySelectorAll('#acctPanel input[type=checkbox]:not(#acctAllChk)');
-  if(acctAllCb) acctAllCb.checked=(selAccounts.size===acctCbs.length && acctCbs.length>0);
-  const acctBtn2=document.getElementById('acctBtn');
-  if(selAccounts.size===0) acctBtn2.textContent='全て';
-  else if(selAccounts.size<=2) acctBtn2.textContent=[...selAccounts].join(', ');
-  else acctBtn2.textContent=selAccounts.size+'件選択中';
-
   selOpps.clear();
   (state.opps||[]).forEach(v=>selOpps.add(v));
-  document.querySelectorAll('#oppPanel input[type=checkbox]:not(#oppAllChk)').forEach(cb=>{cb.checked=selOpps.has(cb.value);});
-  const oppAllCb=document.getElementById('oppAllChk');
-  const oppCbs=document.querySelectorAll('#oppPanel input[type=checkbox]:not(#oppAllChk)');
-  if(oppAllCb) oppAllCb.checked=(selOpps.size===oppCbs.length && oppCbs.length>0);
-  const oppBtn2=document.getElementById('oppBtn');
-  if(selOpps.size===0) oppBtn2.textContent='全て';
-  else if(selOpps.size<=2) oppBtn2.textContent=[...selOpps].join(', ');
-  else oppBtn2.textContent=selOpps.size+'件選択中';
-
   selOwners.clear();
   (state.owners||[]).forEach(v=>selOwners.add(v));
-  document.querySelectorAll('#ownerPanel input[type=checkbox]:not(#ownerAllChk)').forEach(cb=>{cb.checked=selOwners.has(cb.value);});
-  const ownerAllCb=document.getElementById('ownerAllChk');
-  const ownerCbs=document.querySelectorAll('#ownerPanel input[type=checkbox]:not(#ownerAllChk)');
-  if(ownerAllCb) ownerAllCb.checked=(selOwners.size===ownerCbs.length && ownerCbs.length>0);
-  const ownerBtn2=document.getElementById('ownerBtn');
-  if(selOwners.size===0) ownerBtn2.textContent='全て';
-  else if(selOwners.size<=2) ownerBtn2.textContent=[...selOwners].join(', ');
-  else ownerBtn2.textContent=selOwners.size+'件選択中';
+  selConsts.clear();
+  (state.consts||[]).forEach(v=>selConsts.add(v));
 
   document.getElementById('pf').value=state.period||'6';
-  document.getElementById('probMin').value=state.probMin||'';
+  probMinVal=parseInt(state.probMin||'');
+
+  // Restore date/boolean filters
+  filterTmpSvyDate=state.filterTmpSvyDate||'all';
+  filterSvyDate=state.filterSvyDate||'all';
+  filterSvyCk=state.filterSvyCk||'all';
+  filterKojiDate=state.filterKojiDate||'all';
+  filterKojiCk=state.filterKojiCk||'all';
+
+  // Restore event filters
   activeEvs.clear();
   (state.events||[]).forEach(v=>activeEvs.add(v));
   const allFlt=document.querySelectorAll('.legend-item.flt');
@@ -1173,9 +1152,17 @@ function render(){
   const scc=['col-account','col-name','col-pref','col-area','col-type','col-prob','col-tmpsvy','col-survey','col-svyck','col-owner','col-const','col-stage','col-koji','col-kojick','col-next'];
   let mr='<tr>';
   for(let i=0;i<scs.length;i++){
-    let cls=scc[i]+' sortable';
-    if(sortCol===scs[i])cls+=' sort-'+(sortDir==='asc'?'asc':'desc');
-    mr+='<th class="'+cls+'" rowspan="2" style="font-size:11px;cursor:pointer;" onclick="toggleSort(\''+scs[i]+'\')">'+scl[i]+'</th>';
+    let cls=scc[i]+' sortable hf-th';
+    const colKey=scs[i];
+    const hasFilter=(colKey!=='next' && hfColType[colKey]);
+    const filterActive=hasFilter && isFilterActive(colKey);
+    const sortArrow=(sortCol===colKey)?(sortDir==='asc'?' ↑':' ↓'):'';
+    mr+='<th class="'+cls+'" rowspan="2" style="font-size:11px;position:relative;">';
+    mr+='<span style="cursor:pointer;" onclick="toggleSort(\''+colKey+'\')">'+scl[i]+'<span class="sort-arrow">'+sortArrow+'</span></span>';
+    if(hasFilter){
+      mr+='<span class="hf-icon'+(filterActive?' active':'')+'" onclick="event.stopPropagation();toggleHfPanel(\''+colKey+'\',event)">▼</span>';
+    }
+    mr+='</th>';
   }
   mons.forEach(m=>{const y=Math.floor(m.m/100),mn=(m.m%100)+1;mr+='<th class="mh" colspan="'+m.d+'">'+y+'/'+mn+'</th>';});
   mr+='</tr>';
@@ -1264,6 +1251,13 @@ function render(){
 
   document.getElementById('gt').innerHTML='<thead>'+mr+dr+'</thead><tbody>'+tb+'</tbody>';
 
+  // Build filter panels in body-level container (avoids overflow clipping)
+  let hfContainer=document.getElementById('hfPanels');
+  if(!hfContainer){hfContainer=document.createElement('div');hfContainer.id='hfPanels';document.body.appendChild(hfContainer);}
+  let hfH='';
+  for(let i=0;i<scs.length;i++){const ck=scs[i];if(ck!=='next'&&hfColType[ck])hfH+=buildFilterPanel(ck);}
+  hfContainer.innerHTML=hfH;
+
   setupColumnResize();
   updateStickyPositions();
 
@@ -1275,24 +1269,20 @@ function render(){
 
 // ===== Filter reset =====
 function resetFilters(){
-  const pfSel=document.getElementById('pff');
-  while(pfSel.options.length>1) pfSel.remove(1);
-  document.getElementById('afPanel').innerHTML='';
-  document.getElementById('ctPanel').innerHTML='';
-  document.getElementById('acctPanel').innerHTML='';
-  document.getElementById('oppPanel').innerHTML='';
-  document.getElementById('ownerPanel').innerHTML='';
   selAreas.clear();
-  document.getElementById('afBtn').textContent='全て';
   selCTypes.clear();
-  document.getElementById('ctBtn').textContent='全て';
   selAccounts.clear();
-  document.getElementById('acctBtn').textContent='全て';
   selOpps.clear();
-  document.getElementById('oppBtn').textContent='全て';
   selOwners.clear();
-  document.getElementById('ownerBtn').textContent='全て';
-  document.getElementById('probMin').value='';
+  selStages.clear();
+  selPrefs.clear();
+  selConsts.clear();
+  probMinVal=NaN;
+  filterTmpSvyDate='all';
+  filterSvyDate='all';
+  filterSvyCk='all';
+  filterKojiDate='all';
+  filterKojiCk='all';
   colWidths=[...COL_DEFAULTS];
 }
 
