@@ -1,7 +1,7 @@
 import jsforce from 'jsforce';
 
 const SOQL = `
-SELECT Id, Name, StageName, Account.Name, Location__r.State__c, ConstractType__c, Probability__c,
+SELECT Id, Name, StageName, Account.Id, Account.Name, Location__r.State__c, ConstractType__c, Probability__c,
   Owner.Name, InvestigationUser__r.Name, ConstUser__r.Name,
   TempSurveyDate__c, SurveyDate__c, SurveyKakutei__c,
   Naijibi__c, Field27__c, KojiSekouyoteibi__c, KojiSekouKakuteibi__c,
@@ -15,6 +15,7 @@ function renameFields(record) {
   const { Account, Location__r, Owner, InvestigationUser__r, ConstUser__r, ...rest } = record;
   return {
     ...rest,
+    AccountId: Account?.Id ?? null,
     AccountName: Account?.Name ?? null,
     Prefecture: Location__r?.State__c ?? null,
     OwnerName: Owner?.Name ?? null,

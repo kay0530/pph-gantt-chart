@@ -1244,7 +1244,8 @@ function render(){
 
     tb+='<tr>';
     const acctName=r.AccountName||'';
-    tb+='<td class="col-account" title="'+esc(acctName)+'">'+esc(acctName||'-')+'</td>';
+    const acctId=r.AccountId||'';
+    tb+='<td class="col-account" title="'+esc(acctName)+'">'+(acctId?'<a href="https://altenergyinc.lightning.force.com/lightning/r/Account/'+acctId+'/view" target="_blank" style="color:inherit;text-decoration:none;" onmouseover="this.style.textDecoration=\'underline\'" onmouseout="this.style.textDecoration=\'none\'">'+esc(acctName||'-')+'</a>':esc(acctName||'-'))+'</td>';
     tb+='<td class="col-name" title="'+esc(r.Name)+'"><a href="https://altenergyinc.lightning.force.com/lightning/r/Opportunity/'+r.Id+'/view" target="_blank" style="color:inherit;text-decoration:none;" onmouseover="this.style.textDecoration=\'underline\'" onmouseout="this.style.textDecoration=\'none\'">'+esc(r.Name)+'</a></td>';
     tb+='<td class="col-pref">'+esc(pref)+'</td>';
     tb+='<td class="col-area">'+esc(area)+'</td>';
