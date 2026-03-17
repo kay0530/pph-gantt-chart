@@ -111,7 +111,8 @@ tr:hover td.dc { box-shadow: inset 0 2px 0 #9fa8da, inset 0 -2px 0 #9fa8da; }
 .col-pref    { width:56px;  min-width:30px; white-space:nowrap; position:sticky; left:350px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 3px; text-align:center; }
 .col-area    { width:48px;  min-width:30px; white-space:nowrap; position:sticky; left:406px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 3px; text-align:center; }
 .col-type    { width:56px;  min-width:30px; white-space:nowrap; position:sticky; left:454px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 3px; text-align:center; }
-.col-tmpsvy  { width:70px;  min-width:40px; white-space:nowrap; position:sticky; left:510px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 3px; text-align:center; }
+.col-prob    { width:40px;  min-width:30px; white-space:nowrap; position:sticky; left:510px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 3px; text-align:center; }
+.col-tmpsvy  { width:70px;  min-width:40px; white-space:nowrap; position:sticky; left:550px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 3px; text-align:center; }
 .col-survey  { width:56px;  min-width:40px; white-space:nowrap; position:sticky; left:580px;  background:#fff; z-index:5; font-size:10px; padding:2px 3px; text-align:center; }
 .col-svyck   { width:30px;  min-width:20px; white-space:nowrap; position:sticky; left:636px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 1px; text-align:center; }
 .col-const   { width:56px;  min-width:30px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:sticky; left:666px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 3px; text-align:center; }
@@ -119,28 +120,28 @@ tr:hover td.dc { box-shadow: inset 0 2px 0 #9fa8da, inset 0 -2px 0 #9fa8da; }
 .col-koji    { width:56px;  min-width:40px; white-space:nowrap; position:sticky; left:832px;  background:#fff; z-index:5; font-size:10px; padding:2px 3px; text-align:center; }
 .col-kojick  { width:30px;  min-width:20px; white-space:nowrap; position:sticky; left:888px;  background:#fff; z-index:5; border-right:1px solid #c5cae9; font-size:10px; padding:2px 1px; text-align:center; }
 .col-next    { width:120px; min-width:50px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; position:sticky; left:918px;  background:#fff; z-index:5; border-right:2px solid #1a237e; font-size:10px; padding:3px 4px; }
-td.col-account, td.col-pref, td.col-area, td.col-type, td.col-tmpsvy, td.col-survey, td.col-svyck,
+td.col-account, td.col-pref, td.col-area, td.col-type, td.col-prob, td.col-tmpsvy, td.col-survey, td.col-svyck,
 td.col-const, td.col-stage, td.col-koji, td.col-kojick, td.col-next { border-left-color:#fff; }
-td.col-account, td.col-name, td.col-pref, td.col-area, td.col-type, td.col-tmpsvy, td.col-survey, td.col-svyck,
+td.col-account, td.col-name, td.col-pref, td.col-area, td.col-type, td.col-prob, td.col-tmpsvy, td.col-survey, td.col-svyck,
 td.col-const, td.col-stage, td.col-koji, td.col-kojick, td.col-next { box-shadow: 0 0 0 3px #fff; }
 .ck-ok       { color:#2e7d32; font-weight:700; }
 .ck-ng       { color:#bdbdbd; }
 
 thead th.col-account, thead th.col-name, thead th.col-pref, thead th.col-area, thead th.col-type,
-thead th.col-tmpsvy, thead th.col-survey, thead th.col-svyck, thead th.col-const,
+thead th.col-prob, thead th.col-tmpsvy, thead th.col-survey, thead th.col-svyck, thead th.col-const,
 thead th.col-stage, thead th.col-koji, thead th.col-kojick, thead th.col-next { z-index:30; background:#e8eaf6; border-left-color:#e8eaf6; box-shadow: 0 0 0 3px #e8eaf6; }
 
 tr:nth-child(even) .col-account, tr:nth-child(even) .col-name, tr:nth-child(even) .col-pref, tr:nth-child(even) .col-area, tr:nth-child(even) .col-type,
-tr:nth-child(even) .col-tmpsvy, tr:nth-child(even) .col-survey, tr:nth-child(even) .col-svyck, tr:nth-child(even) .col-const,
+tr:nth-child(even) .col-prob, tr:nth-child(even) .col-tmpsvy, tr:nth-child(even) .col-survey, tr:nth-child(even) .col-svyck, tr:nth-child(even) .col-const,
 tr:nth-child(even) .col-stage, tr:nth-child(even) .col-koji, tr:nth-child(even) .col-kojick, tr:nth-child(even) .col-next { background:#fafafa; border-left-color:#fafafa; box-shadow: 0 0 0 3px #fafafa; }
 tr:hover .col-account, tr:hover .col-name, tr:hover .col-pref, tr:hover .col-area, tr:hover .col-type,
-tr:hover .col-tmpsvy, tr:hover .col-survey, tr:hover .col-svyck, tr:hover .col-const,
+tr:hover .col-prob, tr:hover .col-tmpsvy, tr:hover .col-survey, tr:hover .col-svyck, tr:hover .col-const,
 tr:hover .col-stage, tr:hover .col-koji, tr:hover .col-kojick, tr:hover .col-next { background:#e8eaf6 !important; border-left-color:#e8eaf6; box-shadow: 0 0 0 3px #e8eaf6; }
 
 thead tr:first-child th { position:sticky; top:0; z-index:20; }
 thead tr:nth-child(2) th { position:sticky; top:26px; z-index:20; }
 thead tr:first-child th.col-name, thead tr:first-child th.col-pref, thead tr:first-child th.col-area, thead tr:first-child th.col-type,
-thead tr:first-child th.col-tmpsvy, thead tr:first-child th.col-survey, thead tr:first-child th.col-svyck, thead tr:first-child th.col-const,
+thead tr:first-child th.col-prob, thead tr:first-child th.col-tmpsvy, thead tr:first-child th.col-survey, thead tr:first-child th.col-svyck, thead tr:first-child th.col-const,
 thead tr:first-child th.col-stage, thead tr:first-child th.col-koji, thead tr:first-child th.col-kojick, thead tr:first-child th.col-next { z-index:40; box-shadow: 0 0 0 3px #e8eaf6; }
 
 .nx-wait { color:#1565c0; font-weight:600; }
@@ -250,6 +251,8 @@ body.col-resizing * { cursor:col-resize !important; }
     <div class="ms-btn" id="ctBtn" onclick="document.getElementById('ctPanel').classList.toggle('open')">全て</div>
     <div class="ms-panel" id="ctPanel"></div>
   </div>
+  <label>確度≧:</label>
+  <input type="number" id="probMin" placeholder="%" min="0" max="100" style="width:50px;" oninput="applyFilters()">
   <label>期間:</label>
   <select id="pf" onchange="applyFilters()">
     <option value="3">3ヶ月</option><option value="6" selected>6ヶ月</option>
@@ -380,6 +383,8 @@ function getFilteredData(){
     if(pfv!=='all'&&(r.Prefecture||'')!==pfv)return false;
     if(selCTypes.size>0&&!selCTypes.has(r.ConstractType__c||''))return false;
     if(activeEvs.size>0&&!hasActiveEvent(r))return false;
+    const probMinVal=parseInt(document.getElementById('probMin').value);
+    if(!isNaN(probMinVal)&&(r.Probability__c==null||r.Probability__c<probMinVal))return false;
     return true;
   });
 }
@@ -768,7 +773,8 @@ function getCurrentFilterState(){
     ctype: [...selCTypes],
     search: document.getElementById('si').value,
     period: document.getElementById('pf').value,
-    events: [...activeEvs]
+    events: [...activeEvs],
+    probMin: document.getElementById('probMin').value
   };
 }
 
@@ -806,6 +812,7 @@ function applyPreset(state){
 
   document.getElementById('si').value=state.search||'';
   document.getElementById('pf').value=state.period||'6';
+  document.getElementById('probMin').value=state.probMin||'';
   activeEvs.clear();
   (state.events||[]).forEach(v=>activeEvs.add(v));
   const allFlt=document.querySelectorAll('.legend-item.flt');
@@ -885,11 +892,11 @@ async function renderPresetButtons(activeName){
 
 // ===== Column widths (for resize feature) =====
 const COL_KEYS=['account','name','pref','area','type','tmpsvy','survey','svyck','const','stage','koji','kojick','next'];
-const COL_DEFAULTS=[150,200,56,48,56,70,56,30,56,110,56,30,120];
+const COL_DEFAULTS=[150,200,56,48,56,40,70,56,30,56,110,56,30,120];
 let colWidths=[...COL_DEFAULTS];
 
 function updateStickyPositions(){
-  const classes=['col-account','col-name','col-pref','col-area','col-type','col-tmpsvy','col-survey','col-svyck','col-const','col-stage','col-koji','col-kojick','col-next'];
+  const classes=['col-account','col-name','col-pref','col-area','col-type','col-prob','col-tmpsvy','col-survey','col-svyck','col-const','col-stage','col-koji','col-kojick','col-next'];
   // Build CSS rules instead of per-element inline styles (avoids 10,000+ DOM writes)
   let css='', left=0;
   for(let i=0;i<classes.length;i++){
@@ -959,6 +966,7 @@ function render(){
       else if(sortCol==='pref'){va=a.Prefecture||'\uff9d';vb=b.Prefecture||'\uff9d';}
       else if(sortCol==='area'){va=getArea(a.Prefecture||'');vb=getArea(b.Prefecture||'');}
       else if(sortCol==='type'){va=a.ConstractType__c||'\uff9d';vb=b.ConstractType__c||'\uff9d';}
+      else if(sortCol==='prob'){va=a.Probability__c!=null?a.Probability__c:-1;vb=b.Probability__c!=null?b.Probability__c:-1;return sortDir==='asc'?va-vb:vb-va;}
       else if(sortCol==='tmpsvy'){va=a.TempSurveyDate__c||'9999';vb=b.TempSurveyDate__c||'9999';}
       else if(sortCol==='survey'){va=a.SurveyDate__c||'9999';vb=b.SurveyDate__c||'9999';}
       else if(sortCol==='svyck'){va=a.SurveyKakutei__c?0:1;vb=b.SurveyKakutei__c?0:1;return sortDir==='asc'?va-vb:vb-va;}
@@ -998,9 +1006,9 @@ function render(){
   while(cd<=ed){const m=cd.getFullYear()*100+cd.getMonth();if(m!==cm){if(cm!==-1)mons.push({m:cm,d:md});cm=m;md=0;}md++;cd.setDate(cd.getDate()+1);}
   if(md>0)mons.push({m:cm,d:md});
 
-  const scs=['account','name','pref','area','type','tmpsvy','survey','svyck','const','stage','koji','kojick','next'];
-  const scl=['取引先','商談名','県','エリア','区分','仮現調日','本現調日','確定','施工担当','ステータス','着工日','確定','次の予定'];
-  const scc=['col-account','col-name','col-pref','col-area','col-type','col-tmpsvy','col-survey','col-svyck','col-const','col-stage','col-koji','col-kojick','col-next'];
+  const scs=['account','name','pref','area','type','prob','tmpsvy','survey','svyck','const','stage','koji','kojick','next'];
+  const scl=['取引先','商談名','県','エリア','区分','確度','仮現調日','本現調日','確定','施工担当','ステータス','着工日','確定','次の予定'];
+  const scc=['col-account','col-name','col-pref','col-area','col-type','col-prob','col-tmpsvy','col-survey','col-svyck','col-const','col-stage','col-koji','col-kojick','col-next'];
   let mr='<tr>';
   for(let i=0;i<scs.length;i++){
     let cls=scc[i]+' sortable';
@@ -1049,6 +1057,8 @@ function render(){
     tb+='<td class="col-pref">'+esc(pref)+'</td>';
     tb+='<td class="col-area">'+esc(area)+'</td>';
     tb+='<td class="col-type">'+esc(ctype)+'</td>';
+    const prob=r.Probability__c;
+    tb+='<td class="col-prob">'+(prob!=null?prob+'%':'-')+'</td>';
     tb+='<td class="col-tmpsvy '+(tmpSvyStr?'date-val':'date-empty')+'" title="'+(tmpSvyStr||'未設定')+'">'+(tmpSvyStr?fds(tmpSvyStr):'-')+'</td>';
     tb+='<td class="col-survey '+(svyStr?'date-val':'date-empty')+'" title="'+(svyStr||'未設定')+'">'+(svyStr?fds(svyStr):'-')+'</td>';
     const svyKk=r.SurveyKakutei__c===true||r.SurveyKakutei__c==='true';
@@ -1109,6 +1119,7 @@ function resetFilters(){
   document.getElementById('afBtn').textContent='全て';
   selCTypes.clear();
   document.getElementById('ctBtn').textContent='全て';
+  document.getElementById('probMin').value='';
   colWidths=[...COL_DEFAULTS];
 }
 
@@ -1118,7 +1129,7 @@ async function fetchData(){
   if(!res.ok) throw new Error('データ取得に失敗しました (status: ' + res.status + ')');
   const rawData = await res.json();
   if(!rawData) throw new Error('データが空です。');
-  D = Array.isArray(rawData) ? rawData : Object.values(rawData);
+  D = Array.isArray(rawData) ? rawData : (rawData.records || Object.values(rawData));
   document.getElementById('tc').textContent = D.length;
   document.getElementById('ut').textContent = new Date().toLocaleString('ja-JP');
 }

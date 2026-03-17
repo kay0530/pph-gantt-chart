@@ -1,7 +1,7 @@
 import jsforce from 'jsforce';
 
 const SOQL = `
-SELECT Id, Name, StageName, Account.Name, Location__r.State__c, ConstractType__c,
+SELECT Id, Name, StageName, Account.Name, Location__r.State__c, ConstractType__c, Probability__c,
   InvestigationUser__r.Name, ConstUser__r.Name,
   TempSurveyDate__c, SurveyDate__c, SurveyKakutei__c,
   Naijibi__c, Field27__c, KojiSekouyoteibi__c, KojiSekouKakuteibi__c,
