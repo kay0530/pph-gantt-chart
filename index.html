@@ -210,6 +210,7 @@ body.col-resizing * { cursor:col-resize !important; }
   <h1>PPH商談 ガントチャート（進行中案件）</h1>
   <div class="info">最終更新: <span id="ut"></span> | 全データ: <span id="tc"></span>件
     <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">&#x21BB; データ更新</button>
+    <button class="refresh-btn" style="background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;margin-left:4px;" onclick="exportExcel()">&#x1F4E5; Excel出力</button>
   </div>
 </div>
 
@@ -286,7 +287,6 @@ body.col-resizing * { cursor:col-resize !important; }
     <option value="12">12ヶ月</option><option value="all">全期間</option>
   </select>
   <span class="fc" id="fc"></span>
-  <button class="refresh-btn" style="background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;margin-left:8px;" onclick="exportExcel()">&#x1F4E5; Excel出力</button>
 </div>
 <div class="legend" id="legendBar">
   <span style="font-size:10px;color:#888;margin-right:2px;">▼絞込:</span>
