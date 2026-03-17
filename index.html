@@ -197,6 +197,7 @@ body.col-resizing * { cursor:col-resize !important; }
 <!-- Firebase SDKs for Firestore shared presets -->
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -285,6 +286,7 @@ body.col-resizing * { cursor:col-resize !important; }
     <option value="12">12ヶ月</option><option value="all">全期間</option>
   </select>
   <span class="fc" id="fc"></span>
+  <button class="refresh-btn" style="background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;margin-left:8px;" onclick="exportExcel()">&#x1F4E5; Excel出力</button>
 </div>
 <div class="legend" id="legendBar">
   <span style="font-size:10px;color:#888;margin-right:2px;">▼絞込:</span>
@@ -1299,6 +1301,30 @@ function render(){
     const tds=document.querySelectorAll('.tl');
     if(tds.length>0)tds[0].scrollIntoView({inline:'center',block:'nearest'});
   },100);
+}
+
+// ===== Excel Export =====
+function exportExcel(){
+  const f=getFilteredData();
+  const rows=f.map(r=>{
+    const svyKk=r.SurveyKakutei__c===true||r.SurveyKakutei__c==='true';
+    const kojiKk=r.KojiSekouKakuteibi__c===true||r.KojiSekouKakuteibi__c==='true';
+    const nxEv=getNextEvent(r);
+    return {
+      '取引先':r.AccountName||'','商談名':r.Name||'','県':r.Prefecture||'','エリア':getArea(r.Prefecture||''),
+      '区分':r.ConstractType__c||'','確度(%)':r.Probability__c!=null?r.Probability__c:'',
+      '仮現調日':r.TempSurveyDate__c||'','本現調日':r.SurveyDate__c||'','現調確定':svyKk?'確定':'',
+      '営業':r.OwnerName||'','施工担当':r.ConstUserName||'','ステータス':r.StageName||'',
+      '着工日':r.KojiSekouyoteibi__c||'','着工確定':kojiKk?'確定':'',
+      '次の予定':nxEv?nxEv.label+'待ち '+nxEv.date.getMonth()+1+'/'+nxEv.date.getDate():''
+    };
+  });
+  const ws=XLSX.utils.json_to_sheet(rows);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'ガントチャート');
+  const now=new Date();
+  const ts=now.getFullYear()+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0');
+  XLSX.writeFile(wb,'PPH_ガントチャート_'+ts+'.xlsx');
 }
 
 // ===== Filter reset =====
