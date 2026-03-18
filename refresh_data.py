@@ -12,34 +12,32 @@ GitHub Actionsまたはローカルから実行可能。
   - .env ファイルから環境変数を読み込み可能
 """
 import json, os, sys
-from datetime import datetime
 
 sys.stdout.reconfigure(encoding='utf-8')
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-FIELDS = [
-    'Id', 'Name', 'StageName', 'ConstractType__c',
-    'Location__r.State__c', 'InvestigationUser__r.Name', 'ConstUser__r.Name',
-    'Naijibi__c', 'TempSurveyDate__c', 'SurveyDate__c', 'SurveyKakutei__c',
-    'Field27__c', 'KojiSekouyoteibi__c', 'ScheduleOfBlackoutDates__c',
-    'KojiKankobi__c', 'Kankobi__c', 'StartDate__c',
-    'KojiSekouKakuteibi__c', 'KankoKakuteibi__c', 'StartKakutei__c', 'Jucyubi__c'
-]
+SOQL = """
+SELECT
+  Id, Name, StageName,
+  Account.Id, Account.Name,
+  Location__r.State__c,
+  ConstractType__c, Probability__c,
+  Owner.Name,
+  InvestigationUser__r.Name, ConstUser__r.Name,
+  TempSurveyDate__c, SurveyDate__c, SurveyKakutei__c,
+  Naijibi__c, Field27__c,
+  KojiSekouyoteibi__c, KojiSekouKakuteibi__c,
+  ScheduleOfBlackoutDates__c,
+  KojiKankobi__c, Kankobi__c, KankoKakuteibi__c,
+  StartDate__c, StartKakutei__c, Jucyubi__c
+FROM Opportunity
+WHERE Location__c != null
+  AND StageName NOT IN ('失注', '10_完工／引渡し', 'ペンディング')
+  AND PPH__c = true
+ORDER BY Account.Name ASC
+""".strip()
 
-FIELD_MAP = {
-    'Location__r': {'State__c': 'Prefecture'},
-    'InvestigationUser__r': {'Name': 'InvestigationUserName'},
-    'ConstUser__r': {'Name': 'ConstUserName'},
-}
-
-SOQL = (
-    "SELECT " + ", ".join(FIELDS) +
-    " FROM Opportunity"
-    " WHERE RecordType.Name = '改修'"
-    " AND StageName != '09_失注/不成立'"
-    " ORDER BY CreatedDate ASC"
-)
 
 def flatten_record(rec):
     """Salesforceレコードをフラットなdictに変換"""
@@ -47,12 +45,25 @@ def flatten_record(rec):
     for key, val in rec.items():
         if key == 'attributes':
             continue
-        if isinstance(val, dict) and key in FIELD_MAP:
-            for sub_key, out_name in FIELD_MAP[key].items():
-                flat[out_name] = val.get(sub_key) if val else None
+        if isinstance(val, dict):
+            nested = {k: v for k, v in val.items() if k != 'attributes'}
+            if key == 'Account':
+                flat['AccountId'] = nested.get('Id')
+                flat['AccountName'] = nested.get('Name')
+            elif key == 'Location__r':
+                flat['Prefecture'] = nested.get('State__c')
+            elif key == 'Owner':
+                flat['OwnerName'] = nested.get('Name')
+            elif key == 'InvestigationUser__r':
+                flat['InvestigationUserName'] = nested.get('Name')
+            elif key == 'ConstUser__r':
+                flat['ConstUserName'] = nested.get('Name')
+            else:
+                flat[key] = val
         else:
             flat[key] = val
     return flat
+
 
 def main():
     # .envファイルがあれば読み込み
@@ -93,10 +104,12 @@ def main():
     records = [flatten_record(r) for r in result['records']]
     print(f'取得件数: {len(records)}')
 
+    output = {'totalSize': len(records), 'records': records}
     out_path = os.path.join(SCRIPT_DIR, 'pph_data_v5.json')
     with open(out_path, 'w', encoding='utf-8') as f:
-        json.dump(records, f, ensure_ascii=False, indent=2)
+        json.dump(output, f, ensure_ascii=False, indent=2)
     print(f'JSON保存: {out_path} ({len(records)}件)')
+
 
 if __name__ == '__main__':
     main()

@@ -1,6 +1,9 @@
 name: Salesforceデータ更新
 
 on:
+  schedule:
+    # Weekdays 9:00-21:00 JST (= UTC 0:00-12:00), every 30 min
+    - cron: '*/30 0-12 * * 1-5'
   workflow_dispatch:
 
 jobs:
