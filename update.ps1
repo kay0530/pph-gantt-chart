@@ -12,7 +12,8 @@ Write-Host "=== PPH Data Update ===" -ForegroundColor Cyan
 
 # 1. Fetch from Salesforce (use .soql file to avoid encoding issues)
 Write-Host "[1/4] Fetching from Salesforce..." -ForegroundColor Yellow
-sf data query --file query.soql --target-org "$SfOrg" --result-format json > raw_pph.json
+$result = sf data query --file query.soql --target-org "$SfOrg" --result-format json
+[System.IO.File]::WriteAllLines("$ScriptDir\raw_pph.json", $result)
 Write-Host "  Done" -ForegroundColor Green
 
 # 2. Convert to pph_data_v5.json
