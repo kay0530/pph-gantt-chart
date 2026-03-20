@@ -1400,17 +1400,42 @@ async function fetchData(){
 async function refreshData(){
   var btn = document.getElementById('refreshBtn');
   btn.disabled = true;
-  btn.innerHTML = '<span class="spin">&#x21BB;</span> 更新中...';
+  btn.innerHTML = '<span class="spin">&#x21BB;</span> SF同期中...';
+  var GH_TOKEN = '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';
+  var GH_API = 'https://api.github.com/repos/kay0530/pph-gantt-chart/actions/workflows/refresh-data.yml';
+  var GH_HEADERS = { 'Authorization': 'token ' + GH_TOKEN, 'Accept': 'application/vnd.github.v3+json' };
   try {
+    // Trigger GitHub Actions workflow to fetch latest SF data
+    var resp = await fetch(GH_API + '/dispatches', { method: 'POST', headers: GH_HEADERS, body: JSON.stringify({ ref: 'main' }) });
+    if (!resp.ok && resp.status !== 204) throw new Error('Workflow trigger failed: ' + resp.status);
+    btn.innerHTML = '<span class="spin">&#x21BB;</span> データ取得中...';
+    // Poll for workflow completion (check every 10s, max 3min)
+    var maxWait = 180000, interval = 10000, elapsed = 0;
+    await new Promise(function(resolve){ setTimeout(resolve, 8000); }); // initial wait
+    elapsed += 8000;
+    while (elapsed < maxWait) {
+      var runResp = await fetch(GH_API + '/runs?per_page=1&branch=main', { headers: GH_HEADERS });
+      var runData = await runResp.json();
+      var latestRun = runData.workflow_runs && runData.workflow_runs[0];
+      if (latestRun && latestRun.status === 'completed') {
+        if (latestRun.conclusion === 'success') break;
+        else throw new Error('Workflow failed: ' + latestRun.conclusion);
+      }
+      await new Promise(function(resolve){ setTimeout(resolve, interval); });
+      elapsed += interval;
+    }
+    if (elapsed >= maxWait) throw new Error('Timeout waiting for workflow');
+    // Reload updated JSON data (wait for GitHub Pages cache)
+    await new Promise(function(resolve){ setTimeout(resolve, 5000); });
     await fetchData();
     resetFilters();
     populateFilters();
     applyFilters();
-    btn.innerHTML = '&#x2713; 更新完了';
-    setTimeout(function(){ btn.innerHTML = '&#x21BB; データ更新'; btn.disabled = false; }, 2000);
+    btn.innerHTML = '&#x2713; SF同期完了';
+    setTimeout(function(){ btn.innerHTML = '&#x21BB; データ更新'; btn.disabled = false; }, 3000);
   } catch(e){
     console.error('Refresh error:', e);
-    btn.innerHTML = '&#x26A0; 失敗';
+    btn.innerHTML = '&#x26A0; 同期失敗';
     setTimeout(function(){ btn.innerHTML = '&#x21BB; データ更新'; btn.disabled = false; }, 3000);
   }
 }

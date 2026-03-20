@@ -1,10 +1,10 @@
-name: Salesforceデータ更新
+name: Refresh Salesforce Data
 
 on:
-  schedule:
-    # Weekdays 9:00-21:00 JST (= UTC 0:00-12:00), every 30 min
-    - cron: '*/30 0-12 * * 1-5'
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   refresh:
@@ -16,22 +16,28 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
-        run: pip install simple-salesforce
+      - name: Install Salesforce CLI
+        run: npm install -g @salesforce/cli
 
-      - name: Run refresh script
-        env:
-          SF_USERNAME: ${{ secrets.SF_USERNAME }}
-          SF_PASSWORD: ${{ secrets.SF_PASSWORD }}
-          SF_SECURITY_TOKEN: ${{ secrets.SF_SECURITY_TOKEN }}
-          SF_DOMAIN: ${{ secrets.SF_DOMAIN }}
-        run: python refresh_data.py
+      - name: Authenticate Salesforce
+        run: |
+          echo "${{ secrets.SFDX_AUTH_URL }}" > auth_url.txt
+          sf org login sfdx-url --sfdx-url-file auth_url.txt --set-default --alias prod
+          rm auth_url.txt
 
-      - name: Commit and push updated data
+      - name: Fetch data from Salesforce
+        run: sf data query --file query.soql --target-org prod --result-format json > raw_pph.json
+
+      - name: Convert JSON
+        run: python convert_data.py
+
+      - name: Cleanup
+        run: rm -f raw_pph.json
+
+      - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add pph_data_v5.json
-          git diff --cached --quiet || git commit -m "data: Salesforceデータ更新 $(date '+%Y/%m/%d %H:%M')"
+          git diff --cached --quiet || git commit -m "data: update Salesforce data $(date '+%Y/%m/%d %H:%M')"
           git push
-
