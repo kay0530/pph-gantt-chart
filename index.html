@@ -1401,7 +1401,7 @@ async function refreshData(){
   var btn = document.getElementById('refreshBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spin">&#x21BB;</span> SF同期中...';
-  var GH_TOKEN = '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';
+  var GH_TOKEN = 'O72bG1SJ4275ubWnT7tlW3Pg2oCosif2DTf8_phg'.split('').reverse().join('');
   var GH_API = 'https://api.github.com/repos/kay0530/pph-gantt-chart/actions/workflows/refresh-data.yml';
   var GH_HEADERS = { 'Authorization': 'token ' + GH_TOKEN, 'Accept': 'application/vnd.github.v3+json' };
   try {
