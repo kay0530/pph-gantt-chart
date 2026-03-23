@@ -346,14 +346,46 @@ try {
 let D = [];
 const NOW = new Date(); NOW.setHours(0,0,0,0);
 
-// ===== Local data (shop name, kanko kakutei) stored in localStorage =====
+// ===== Shared opp data (shop, ctrl, note) via Firestore =====
 const LOCAL_DATA_KEY='pph_local_data';
-function getShopData(){try{return JSON.parse(localStorage.getItem(LOCAL_DATA_KEY))||{};}catch(e){return{};}}
-function setShopVal(oppId,val){const d=getShopData();d[oppId]=val;localStorage.setItem(LOCAL_DATA_KEY,JSON.stringify(d));}
-function setKankoKk(oppId,val){const d=getShopData();d[oppId+'_kk']=val;localStorage.setItem(LOCAL_DATA_KEY,JSON.stringify(d));}
-function toggleKankoKk(oppId,el){const d=getShopData();const cur=!!d[oppId+'_kk'];setKankoKk(oppId,!cur);el.innerHTML=!cur?'&#10003;':'&#x2015;';el.className='col-kankock '+(!cur?'ck-ok':'ck-ng');el.title=!cur?'確定':'未確定';}
-function setCtrlVal(oppId,val){const d=getShopData();d[oppId+'_ctrl']=val;localStorage.setItem(LOCAL_DATA_KEY,JSON.stringify(d));}
-function setNoteVal(oppId,val){const d=getShopData();d[oppId+'_note']=val;localStorage.setItem(LOCAL_DATA_KEY,JSON.stringify(d));}
+let oppDataCache={};
+let oppDataRef=null;
+if(firestoreReady) oppDataRef=db.collection('oppData');
+
+function getShopData(){return oppDataCache;}
+function setShopVal(oppId,val){oppDataCache[oppId]=val;saveOppField(oppId,'shop',val);}
+function setCtrlVal(oppId,val){oppDataCache[oppId+'_ctrl']=val;saveOppField(oppId,'ctrl',val);}
+function setNoteVal(oppId,val){oppDataCache[oppId+'_note']=val;saveOppField(oppId,'note',val);}
+
+function saveOppField(oppId,field,val){
+  if(oppDataRef){
+    oppDataRef.doc(oppId).set({[field]:val},{merge:true}).catch(e=>console.warn('Firestore write failed',e));
+  }
+  // Also save to localStorage as fallback
+  try{const d=JSON.parse(localStorage.getItem(LOCAL_DATA_KEY))||{};
+    if(field==='shop')d[oppId]=val;else d[oppId+'_'+field]=val;
+    localStorage.setItem(LOCAL_DATA_KEY,JSON.stringify(d));
+  }catch(e){}
+}
+
+async function loadOppData(){
+  // Load from localStorage first (instant)
+  try{oppDataCache=JSON.parse(localStorage.getItem(LOCAL_DATA_KEY))||{};}catch(e){oppDataCache={};}
+  // Then load from Firestore (shared) and merge
+  if(oppDataRef){
+    try{
+      const snap=await oppDataRef.get();
+      snap.forEach(doc=>{
+        const d=doc.data(), id=doc.id;
+        if(d.shop!==undefined) oppDataCache[id]=d.shop;
+        if(d.ctrl!==undefined) oppDataCache[id+'_ctrl']=d.ctrl;
+        if(d.note!==undefined) oppDataCache[id+'_note']=d.note;
+      });
+      // Sync merged data back to localStorage
+      localStorage.setItem(LOCAL_DATA_KEY,JSON.stringify(oppDataCache));
+    }catch(e){console.warn('Firestore oppData load failed, using localStorage',e);}
+  }
+}
 const NOW_T = NOW.getTime();
 
 const HOLIDAYS = new Set([
@@ -1261,7 +1293,7 @@ function render(){
     const svyStr=r.SurveyDate__c||'';
     const shopData=getShopData();
     const shopVal=shopData[r.Id]||'';
-    const kankoKkLocal=!!shopData[r.Id+'_kk'];
+    const kankoKk=r.KankoKakuteibi__c===true||r.KankoKakuteibi__c==='true';
 
     tb+='<tr>';
     const acctName=r.AccountName||'';
@@ -1287,7 +1319,7 @@ function render(){
     tb+='<td class="col-kojick '+(kk?'ck-ok':'ck-ng')+'" title="'+(kk?'確定':'未確定')+'">'+(kk?'&#10003;':'&#x2015;')+'</td>';
     const kankoStr=r.Kankobi__c||'';
     tb+='<td class="col-kanko '+(kankoStr?'date-val':'date-empty')+'" title="'+(kankoStr||'未設定')+'">'+(kankoStr?fds(kankoStr):'-')+'</td>';
-    tb+='<td class="col-kankock '+(kankoKkLocal?'ck-ok':'ck-ng')+'" title="'+(kankoKkLocal?'確定':'未確定')+'" style="cursor:pointer;" onclick="toggleKankoKk(\''+r.Id+'\',this)">'+(kankoKkLocal?'&#10003;':'&#x2015;')+'</td>';
+    tb+='<td class="col-kankock '+(kankoKk?'ck-ok':'ck-ng')+'" title="'+(kankoKk?'確定':'未確定')+'">'+(kankoKk?'&#10003;':'&#x2015;')+'</td>';
     tb+='<td class="'+nxC+'" title="'+(nxEv?nxEv.label+'待ち '+fd(nxEv.date):'予定なし')+'">'+nxH+'</td>';
     const noteVal=shopData[r.Id+'_note']||'';
     tb+='<td class="col-note"><input type="text" value="'+esc(noteVal)+'" placeholder="-" onblur="setNoteVal(\''+r.Id+'\',this.value)"></td>';
@@ -1338,7 +1370,7 @@ function exportExcel(){
   const rows=f.map(r=>{
     const svyKk=r.SurveyKakutei__c===true||r.SurveyKakutei__c==='true';
     const kojiKk=r.KojiSekouKakuteibi__c===true||r.KojiSekouKakuteibi__c==='true';
-    const kankoKkLocal=!!shopData[r.Id+'_kk'];
+    const kankoKk=r.KankoKakuteibi__c===true||r.KankoKakuteibi__c==='true';
     const nxEv=getNextEvent(r);
     return {
       '取引先':r.AccountName||'','商談名':r.Name||'','県':r.Prefecture||'','エリア':getArea(r.Prefecture||''),
@@ -1346,7 +1378,7 @@ function exportExcel(){
       '本現調日':r.SurveyDate__c||'','現調確定':svyKk?'確定':'',
       '営業':r.OwnerName||'','施工店':shopData[r.Id]||'','出力制御':shopData[r.Id+'_ctrl']||'','ステータス':r.StageName||'',
       '着工日':r.KojiSekouyoteibi__c||'','着工確定':kojiKk?'確定':'',
-      '完工日':r.Kankobi__c||'','完工確定':kankoKkLocal?'確定':'',
+      '完工日':r.Kankobi__c||'','完工確定':kankoKk?'確定':'',
       '次の予定':nxEv?nxEv.label+'待ち '+(nxEv.date.getMonth()+1)+'/'+nxEv.date.getDate():'',
       '備考':shopData[r.Id+'_note']||''
     };
@@ -1412,6 +1444,7 @@ async function refreshData(){
     // Wait for workflow to complete (~30s) + GitHub Pages rebuild (~30s)
     await new Promise(function(resolve){ setTimeout(resolve, 60000); });
     await fetchData();
+    await loadOppData();
     resetFilters();
     populateFilters();
     applyFilters();
@@ -1428,6 +1461,7 @@ async function refreshData(){
 async function initApp(){
   try {
     await fetchData();
+    await loadOppData();
     populateFilters();
     await renderPresetButtons();
     applyFilters();
