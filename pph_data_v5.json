@@ -8123,7 +8123,7 @@
       "ScheduleOfBlackoutDates__c": null,
       "KojiKankobi__c": "2025-09-05",
       "Kankobi__c": "2025-09-05",
-      "KankoKakuteibi__c": false,
+      "KankoKakuteibi__c": true,
       "StartDate__c": null,
       "StartKakutei__c": false,
       "Jucyubi__c": null
