@@ -1,0 +1,7 @@
+SELECT
+  Opportunity__c, Deadline__c
+FROM DesignRequest__c
+WHERE Opportunity__r.PPH__c = true
+  AND Opportunity__r.StageName NOT IN ('失注', '10_完工／引渡し', 'ペンディング')
+  AND Deadline__c != null
+ORDER BY CreatedDate DESC

@@ -3,12 +3,24 @@ import json, os
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 raw_path = os.path.join(script_dir, 'raw_pph.json')
+design_path = os.path.join(script_dir, 'raw_design.json')
 out_path = os.path.join(script_dir, 'pph_data_v5.json')
 
 with open(raw_path, 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 records = data.get('result', {}).get('records', data.get('records', []))
+
+# Load design request deadlines (Opportunity__c -> latest Deadline__c)
+design_deadlines = {}
+if os.path.exists(design_path):
+    with open(design_path, 'r', encoding='utf-8') as f:
+        dd = json.load(f)
+    for r in dd.get('result', {}).get('records', dd.get('records', [])):
+        opp_id = r.get('Opportunity__c')
+        dl = r.get('Deadline__c')
+        if opp_id and dl and opp_id not in design_deadlines:
+            design_deadlines[opp_id] = dl
 
 
 def flatten(rec):
@@ -37,6 +49,12 @@ def flatten(rec):
 
 
 out = [flatten(r) for r in records]
+
+# Merge design deadlines
+for rec in out:
+    opp_id = rec.get('Id')
+    if opp_id and opp_id in design_deadlines:
+        rec['DesignDeadline__c'] = design_deadlines[opp_id]
 with open(out_path, 'w', encoding='utf-8') as f:
     json.dump({'totalSize': len(out), 'records': out}, f, ensure_ascii=False, indent=2)
 print(f'  {len(out)} records -> pph_data_v5.json')

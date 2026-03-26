@@ -14,6 +14,9 @@ Write-Host "=== PPH Data Update ===" -ForegroundColor Cyan
 Write-Host "[1/4] Fetching from Salesforce..." -ForegroundColor Yellow
 $result = sf data query --file query.soql --target-org "$SfOrg" --result-format json
 [System.IO.File]::WriteAllLines("$ScriptDir\raw_pph.json", $result)
+Write-Host "  Fetching design requests..." -ForegroundColor Yellow
+$design = sf data query --file query_design.soql --target-org "$SfOrg" --result-format json
+[System.IO.File]::WriteAllLines("$ScriptDir\raw_design.json", $design)
 Write-Host "  Done" -ForegroundColor Green
 
 # 2. Convert to pph_data_v5.json
@@ -22,7 +25,7 @@ python convert_data.py
 Write-Host "  Done" -ForegroundColor Green
 
 # 3. Cleanup
-Remove-Item -Force raw_pph.json -ErrorAction SilentlyContinue
+Remove-Item -Force raw_pph.json, raw_design.json -ErrorAction SilentlyContinue
 
 # 4. Git commit & push
 Write-Host "[3/4] Git commit..." -ForegroundColor Yellow

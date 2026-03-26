@@ -26,13 +26,15 @@ jobs:
           rm auth_url.txt
 
       - name: Fetch data from Salesforce
-        run: sf data query --file query.soql --target-org prod --result-format json > raw_pph.json
+        run: |
+          sf data query --file query.soql --target-org prod --result-format json > raw_pph.json
+          sf data query --file query_design.soql --target-org prod --result-format json > raw_design.json
 
       - name: Convert JSON
         run: python convert_data.py
 
       - name: Cleanup
-        run: rm -f raw_pph.json
+        run: rm -f raw_pph.json raw_design.json
 
       - name: Commit and push
         run: |
