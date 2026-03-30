@@ -13,6 +13,6 @@ SELECT
   StartDate__c, StartKakutei__c, Jucyubi__c
 FROM Opportunity
 WHERE Location__c != null
-  AND StageName NOT IN ('失注', '10_完工／引渡し', 'ペンディング')
+  AND StageName NOT IN ('失注', 'ペンディング')
   AND PPH__c = true
 ORDER BY Account.Name ASC
