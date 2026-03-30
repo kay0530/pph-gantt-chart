@@ -2,7 +2,7 @@ SELECT
   Id, Name, StageName,
   Account.Id, Account.Name,
   Location__r.State__c,
-  ConstractType__c, Probability__c,
+  ConstractType__c, Probability__c, PPH__c,
   Owner.Name,
   InvestigationUser__r.Name, ConstUser__r.Name,
   TempSurveyDate__c, SurveyDate__c, SurveyKakutei__c,
