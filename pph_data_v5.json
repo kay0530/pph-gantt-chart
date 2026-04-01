@@ -4570,7 +4570,8 @@
       "KankoKakuteibi__c": false,
       "StartDate__c": null,
       "StartKakutei__c": false,
-      "Jucyubi__c": null
+      "Jucyubi__c": null,
+      "DesignDeadline__c": "2026-04-03"
     },
     {
       "Id": "006TL00001ZXVbUYAX",
@@ -4772,7 +4773,8 @@
       "KankoKakuteibi__c": false,
       "StartDate__c": null,
       "StartKakutei__c": false,
-      "Jucyubi__c": null
+      "Jucyubi__c": null,
+      "DesignDeadline__c": "2026-04-03"
     },
     {
       "Id": "006TL00001I1AIbYAN",
@@ -14924,7 +14926,8 @@
       "KankoKakuteibi__c": true,
       "StartDate__c": null,
       "StartKakutei__c": false,
-      "Jucyubi__c": null
+      "Jucyubi__c": null,
+      "DesignDeadline__c": "2026-03-13"
     },
     {
       "Id": "006TL000011NHNGYA4",
