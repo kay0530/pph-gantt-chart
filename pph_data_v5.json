@@ -17211,7 +17211,7 @@
     {
       "Id": "006TL00001X5CQ1YAN",
       "Name": "藤居裕士（宿毛市山奈町山田）パワまる三相㋟",
-      "StageName": "07_契約締結",
+      "StageName": "09_完工検査",
       "AccountId": "001TL00001L6GOtYAN",
       "AccountName": "藤居裕士",
       "Prefecture": "高知県",
@@ -17229,9 +17229,9 @@
       "KojiSekouyoteibi__c": "2026-04-07",
       "KojiSekouKakuteibi__c": true,
       "ScheduleOfBlackoutDates__c": null,
-      "KojiKankobi__c": null,
+      "KojiKankobi__c": "2026-04-08",
       "Kankobi__c": "2026-04-08",
-      "KankoKakuteibi__c": false,
+      "KankoKakuteibi__c": true,
       "StartDate__c": null,
       "StartKakutei__c": false,
       "Jucyubi__c": null
@@ -17408,7 +17408,7 @@
     {
       "Id": "006TL00001hLN5EYAW",
       "Name": "内海　波子（東田中０２発電所）パワまる単相",
-      "StageName": "07_契約締結",
+      "StageName": "09_完工検査",
       "AccountId": "001TL00001T0XQzYAN",
       "AccountName": "内海　波子",
       "Prefecture": "静岡県",
@@ -17426,7 +17426,7 @@
       "KojiSekouyoteibi__c": "2026-04-09",
       "KojiSekouKakuteibi__c": true,
       "ScheduleOfBlackoutDates__c": null,
-      "KojiKankobi__c": null,
+      "KojiKankobi__c": "2026-04-08",
       "Kankobi__c": "2026-04-10",
       "KankoKakuteibi__c": false,
       "StartDate__c": null,
